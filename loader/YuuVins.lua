@@ -67,7 +67,7 @@ task.spawn(function()
         Title = "YuuVins Exploids",
         Text = "Injecting Visual Modules...",
         Duration = 2.5,
-        Icon = "rbxassetid://16369066601"
+        Icon = "rbxassetid://110623538266999"
     })
     task.wait(2.5)
     StarterGui:SetCore("SendNotification", {
@@ -359,70 +359,6 @@ local RodMap = {
     ["Vertigo: Aurora Rod"] = {Pos=Vector3.new(-100, 135, 1000), Price="90,000 C$", Guide="Hanya muncul saat Event Aurora."},
     ["Forsaken: Scurvy Rod"] = {Pos=Vector3.new(-2550, 135, 1630), Price="50,000 C$", Guide="Masuk gua Bajak Laut di Forsaken."}
 }
-for name, data in pairs(RodMap) do
-    CreateButton(TabRod, "TP: " .. name, function()
-        if string.find(name, "Lost")
-        TweenTP(CFrame.new(data.Pos))
-        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
-    end)
-end
-
-for name, data in pairs(RodMap) do
-    CreateButton(TabRod, "TP: " .. name, function()
-        if string.find(name, "Kings")
-        TweenTP(CFrame.new(data.Pos))
-        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
-    end)
-end
-
-for name, data in pairs(RodMap) do
-    CreateButton(TabRod, "TP: " .. name, function()
-        if string.find(name, "Destiny")
-        TweenTP(CFrame.new(data.Pos))
-        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
-    end)
-end
-
-for name, data in pairs(RodMap) do
-    CreateButton(TabRod, "TP: " .. name, function()
-        if string.find(name, "Fungal")
-        TweenTP(CFrame.new(data.Pos))
-        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
-    end)
-end
-
-for name, data in pairs(RodMap) do
-    CreateButton(TabRod, "TP: " .. name, function()
-        if string.find(name, "Forgotten")
-        TweenTP(CFrame.new(data.Pos))
-        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
-    end)
-end
-
-for name, data in pairs(RodMap) do
-    CreateButton(TabRod, "TP: " .. name, function()
-        if string.find(name, "Trident")
-        TweenTP(CFrame.new(data.Pos))
-        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
-    end)
-end
-
-for name, data in pairs(RodMap) do
-    CreateButton(TabRod, "TP: " .. name, function()
-        if string.find(name, "Aurora")
-        TweenTP(CFrame.new(data.Pos))
-        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
-    end)
-end
-
-for name, data in pairs(RodMap) do
-    CreateButton(TabRod, "TP: " .. name, function()
-        if string.find(name, "Scurvy")
-        TweenTP(CFrame.new(data.Pos))
-        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
-    end)
-end
-
 for name, data in pairs(RodMap) do
     CreateButton(TabRod, "TP: " .. name, function()
         if string.find(name, "Magma") then CONFIG.IsGodMode = true else CONFIG.IsGodMode = false end
