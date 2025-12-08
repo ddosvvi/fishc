@@ -1,622 +1,335 @@
 -- =============================================================
--- YuuVins Exploids // ULTIMATE V9.5 (OPTIMIZED)
+-- YuuVins Exploids // ULTIMATE V10 (HYPER OPTIMIZED)
 -- Owner: ZAYANGGGGG
--- Status: LAG FIXED + INSTANT LOAD + ALL FEATURES
+-- Status: COMPRESSED & FAST LOAD
 -- =============================================================
 
--- [[ 1. SERVICES & VARIABLES (OPTIMIZED) ]]
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-local GuiService = game:GetService("GuiService")
-local StarterGui = game:GetService("StarterGui")
-local Lighting = game:GetService("Lighting")
-local MarketplaceService = game:GetService("MarketplaceService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local VirtualUser = game:GetService("VirtualUser")
-local CoreGui = game:GetService("CoreGui")
-local Workspace = game:GetService("Workspace")
-
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
+-- [[ 1. SHORTENED SERVICES & VARS ]]
+local S = setmetatable({}, {__index = function(_,k) return game:GetService(k) end})
+local Plrs, RS, VIM, VU, TS, SG, GS, CG, MPS, Lig, UIS, WS = S.Players, S.RunService, S.VirtualInputManager, S.VirtualUser, S.TweenService, S.StarterGui, S.GuiService, S.CoreGui, S.MarketplaceService, S.Lighting, S.UserInputService, S.Workspace
+local LP, Cam = Plrs.LocalPlayer, WS.CurrentCamera
+local CF, Vec3, RGB, UD2 = CFrame.new, Vector3.new, Color3.fromRGB, UDim2.new
+local spawn, wait, delay = task.spawn, task.wait, task.delay
+local Enum = Enum
 
 -- [[ 2. CONFIGURATION ]]
-local CONFIG = {
-    IsAutoFish = false,
-    IsAutoSell = false,
-    IsESP = false,
-    IsVision = false,
-    IsAntiAFK = true,
-    IsBypass = true,
-    IsAFKLevel = false,
-    IsGodMode = false,
-    IsWaterWalk = false,
-    IsNoClip = false,
-    IsInfJump = false,
-    IsFullBright = false,
-    
-    SavedPosition = nil,
-    FlySpeed = 300,
-    TargetGroupId = 7381705,
-    Blacklist = {"Trial Tester", "Trial Mod", "Moderator", "Senior Mod", "Admin", "Developer", "Creator"}
+local C = {
+    Fish=false, Sell=false, ESP=false, Vis=false, AFK=true,
+    Bypass=true, AFKLvl=false, God=false, Walk=false, Clip=false,
+    InfJump=false, Bright=false,
+    SavePos=nil, Speed=300, GrpID=7381705,
+    Bad={"Trial Tester","Trial Mod","Moderator","Senior Mod","Admin","Developer","Creator"}
 }
 
-local THEME = {
-    Bg = Color3.fromRGB(10, 12, 20),
-    Sidebar = Color3.fromRGB(15, 18, 30),
-    Item = Color3.fromRGB(20, 25, 40),
-    Text = Color3.fromRGB(240, 240, 255),
-    Accent = Color3.fromRGB(0, 230, 255),
-    Glow1 = Color3.fromRGB(0, 180, 255),
-    Glow2 = Color3.fromRGB(0, 80, 200),
-    ESP_Color = Color3.fromRGB(0, 255, 255),
-    NPC_Color = Color3.fromRGB(255, 215, 0)
+local T = {
+    Bg=RGB(10,12,20), Side=RGB(15,18,30), Item=RGB(20,25,40),
+    Txt=RGB(240,240,255), Acc=RGB(0,230,255),
+    G1=RGB(0,180,255), G2=RGB(0,80,200),
+    ESP=RGB(0,255,255), NPC=RGB(255,215,0)
 }
 
--- [[ 3. GUI MANAGER (SAFE LOAD) ]]
-local function GetSafeGui()
-    local s, h = pcall(function() return gethui() end)
-    if s and h then return h end
-    return game:GetService("CoreGui") or LocalPlayer:WaitForChild("PlayerGui")
+-- [[ 3. GUI MANAGER ]]
+local function GetUI()
+    local s,r = pcall(function() return gethui() end)
+    if s and r then return r end
+    return CG or LP:WaitForChild("PlayerGui")
 end
-local UI_Parent = GetSafeGui()
+local Parent = GetUI()
+for _,v in pairs(Parent:GetChildren()) do if v.Name=="YuuVinsV10" then v:Destroy() end end
 
--- Cleanup Old Instances
-for _, v in pairs(UI_Parent:GetChildren()) do
-    if v.Name == "YuuVinsExploidsUI" then v:Destroy() end
+local function Notif(t,x,d) pcall(function() SG:SetCore("SendNotification",{Title=t,Text=x,Duration=d or 3}) end) end
+Notif("YuuVins V10", "Loading Optimized Script...", 2)
+
+-- [[ 4. UI FACTORY (COMPRESSED) ]]
+local function Make(Cls, Prp)
+    local x = Instance.new(Cls)
+    for k,v in pairs(Prp) do if k~="Parent" then x[k]=v end end
+    if Prp.Parent then x.Parent = Prp.Parent end
+    return x
 end
 
--- Notification
-task.spawn(function()
-    pcall(function()
-        StarterGui:SetCore("SendNotification", {
-            Title = "YuuVins Exploids",
-            Text = "Optimizing Assets...",
-            Duration = 2,
-            Icon = "rbxassetid://16369066601"
-        })
+local Screen = Make("ScreenGui", {Name="YuuVinsV10", Parent=Parent, ResetOnSpawn=false, Enabled=false})
+local Main = Make("Frame", {Name="Main", Parent=Screen, BackgroundColor3=T.Bg, Position=UD2(0.5,-300,0.5,-200), Size=UD2(0,600,0,400), ClipsDescendants=true, Active=true, Draggable=true})
+local Stroke = Make("UIStroke", {Parent=Main, Thickness=2, Transparency=0})
+local Grad = Make("UIGradient", {Parent=Stroke, Color=ColorSequence.new{ColorSequenceKeypoint.new(0,T.G1), ColorSequenceKeypoint.new(1,T.G2)}, Rotation=45})
+Make("UICorner", {Parent=Main, CornerRadius=UDim.new(0,10)})
+
+-- Animation
+spawn(function() while Main.Parent do local t=TS:Create(Grad,TweenInfo.new(3,Enum.EasingStyle.Linear),{Rotation=405}); t:Play(); t.Completed:Wait(); Grad.Rotation=45 end end)
+
+-- Layout
+local Head = Make("Frame", {Parent=Main, BackgroundColor3=RGB(0,0,0), BackgroundTransparency=0.8, Size=UD2(1,0,0,40)})
+Make("TextLabel", {Parent=Head, Size=UD2(0,200,1,0), Position=UD2(0,15,0,0), BackgroundTransparency=1, Text="YuuVins Exploids", Font=Enum.Font.GothamBlack, TextColor3=T.Acc, TextSize=18, TextXAlignment=0})
+
+local Side = Make("Frame", {Parent=Main, BackgroundColor3=T.Side, Position=UD2(0,0,0,40), Size=UD2(0,160,1,-40), BorderSizePixel=0})
+local Cont = Make("Frame", {Parent=Main, BackgroundColor3=T.Bg, Position=UD2(0,170,0,50), Size=UD2(1,-180,1,-60), BackgroundTransparency=1})
+local SideList = Make("UIListLayout", {Parent=Side, SortOrder="LayoutOrder", Padding=UDim.new(0,5), HorizontalAlignment=1})
+Make("UIPadding", {Parent=Side, PaddingTop=UDim.new(0,10)})
+
+local Tabs, CurPage = {}, nil
+
+local function AddTab(txt)
+    local B = Make("TextButton", {Parent=Side, Size=UD2(1,-10,0,35), BackgroundColor3=T.Bg, BackgroundTransparency=1, Text="  "..txt, TextColor3=RGB(150,150,150), Font=Enum.Font.GothamBold, TextSize=13, TextXAlignment=0, AutoButtonColor=false})
+    local P = Make("ScrollingFrame", {Parent=Cont, Size=UD2(1,0,1,0), BackgroundTransparency=1, ScrollBarThickness=3, Visible=false})
+    Make("UIListLayout", {Parent=P, Padding=UDim.new(0,8), SortOrder="LayoutOrder"})
+    
+    B.MouseButton1Click:Connect(function()
+        if CurPage then CurPage.B.TextColor3=RGB(150,150,150); CurPage.P.Visible=false end
+        CurPage = {B=B, P=P}; B.TextColor3=T.Acc; P.Visible=true
     end)
-    task.wait(2)
-    pcall(function()
-        StarterGui:SetCore("SendNotification", {
-            Title = "WELCOME OWNER",
-            Text = "ZAYANGGGGG (System Ready)",
-            Duration = 3,
-        })
-    end)
-end)
+    if not CurPage then CurPage={B=B,P=P}; B.TextColor3=T.Acc; P.Visible=true end
+    return P
+end
+
+local function AddTog(Pg, txt, desc, def, func)
+    local F = Make("Frame", {Parent=Pg, Size=UD2(1,-5,0,50), BackgroundColor3=T.Item})
+    Make("UICorner", {Parent=F, CornerRadius=UDim.new(0,6)})
+    Make("TextLabel", {Parent=F, Size=UD2(1,-60,0,25), Position=UD2(0,10,0,2), BackgroundTransparency=1, Text=txt, TextColor3=T.Txt, Font=Enum.Font.GothamBold, TextSize=13, TextXAlignment=0})
+    Make("TextLabel", {Parent=F, Size=UD2(1,-60,0,15), Position=UD2(0,10,0,25), BackgroundTransparency=1, Text=desc, TextColor3=RGB(150,150,150), Font=Enum.Font.Gotham, TextSize=10, TextXAlignment=0})
+    local B = Make("TextButton", {Parent=F, Size=UD2(0,40,0,20), Position=UD2(1,-50,0.5,-10), BackgroundColor3=def and T.Acc or RGB(50,50,60), Text=""})
+    Make("UICorner", {Parent=B, CornerRadius=UDim.new(0,4)})
+    B.MouseButton1Click:Connect(function() def=not def; B.BackgroundColor3=def and T.Acc or RGB(50,50,60); Notif("System", txt..": "..(def and "ON" or "OFF"), 1); func(def) end)
+end
+
+local function AddBtn(Pg, txt, func)
+    local B = Make("TextButton", {Parent=Pg, Size=UD2(1,-5,0,35), BackgroundColor3=T.Item, Text=txt, TextColor3=T.Txt, Font=Enum.Font.GothamBold, TextSize=12})
+    Make("UICorner", {Parent=B, CornerRadius=UDim.new(0,6)})
+    B.MouseButton1Click:Connect(func)
+end
+
+local function AddInfo(Pg, l, v)
+    local F = Make("Frame", {Parent=Pg, Size=UD2(1,-5,0,30), BackgroundColor3=T.Item})
+    Make("UICorner", {Parent=F, CornerRadius=UDim.new(0,6)})
+    Make("TextLabel", {Parent=F, Size=UD2(0.4,0,1,0), Position=UD2(0,10,0,0), BackgroundTransparency=1, Text=l, TextColor3=RGB(180,180,180), Font=Enum.Font.Gotham, TextSize=12, TextXAlignment=0})
+    Make("TextLabel", {Parent=F, Size=UD2(0.6,-20,1,0), Position=UD2(0.4,0,0,0), BackgroundTransparency=1, Text=v, TextColor3=T.Acc, Font=Enum.Font.GothamBold, TextSize=12, TextXAlignment=1})
+end
+
+-- Header Controls
+local function HeadBtn(t,x,c,f)
+    local b = Make("TextButton", {Parent=Header, Size=UD2(0,35,0,35), AnchorPoint=Vec3(1,0.5,0), Position=UD2(1,x,0.5,0), BackgroundColor3=RGB(255,255,255), BackgroundTransparency=0.95, Text=t, TextColor3=c, Font=Enum.Font.GothamBold, TextSize=18})
+    Make("UICorner", {Parent=b, CornerRadius=UDim.new(0,6)})
+    b.MouseButton1Click:Connect(f)
+end
+HeadBtn("X", -5, RGB(255,80,80), function() Screen:Destroy() end)
+local Mini=false
+HeadBtn("-", -45, RGB(255,255,255), function() Mini=not Mini; TS:Create(Main,TweenInfo.new(0.5,Enum.EasingStyle.Quart),{Size=Mini and UD2(0,600,0,40) or UD2(0,600,0,400)}):Play(); Side.Visible=not Mini; Cont.Visible=not Mini end)
 
 -- =============================================================
--- 4. UI CONSTRUCTION (ALCHEMY STYLE)
--- =============================================================
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "YuuVinsExploidsUI"
-ScreenGui.Parent = UI_Parent
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Enabled = false 
-
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = THEME.Bg
-MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
-MainFrame.Size = UDim2.new(0, 600, 0, 400)
-MainFrame.ClipsDescendants = true
-MainFrame.Active = true
-MainFrame.Draggable = true
-
--- Glow Border
-local Stroke = Instance.new("UIStroke", MainFrame)
-Stroke.Thickness = 2
-Stroke.Transparency = 0
-local UIGradient = Instance.new("UIGradient", Stroke)
-UIGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0.00, THEME.Glow1),
-    ColorSequenceKeypoint.new(1.00, THEME.Glow2)
-}
-UIGradient.Rotation = 45
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
-
--- Header
-local Header = Instance.new("Frame", MainFrame)
-Header.Name = "Header"
-Header.BackgroundColor3 = Color3.fromRGB(0,0,0)
-Header.BackgroundTransparency = 0.8
-Header.Size = UDim2.new(1, 0, 0, 40)
-
-local Logo = Instance.new("TextLabel", Header)
-Logo.Size = UDim2.new(0, 200, 1, 0)
-Logo.Position = UDim2.new(0, 15, 0, 0)
-Logo.BackgroundTransparency = 1
-Logo.Text = "YuuVins Exploids"
-Logo.Font = Enum.Font.GothamBlack
-Logo.TextColor3 = THEME.Accent
-Logo.TextSize = 18
-Logo.TextXAlignment = Enum.TextXAlignment.Left
-
--- Sidebar & Content
-local Sidebar = Instance.new("Frame", MainFrame)
-Sidebar.BackgroundColor3 = THEME.Sidebar
-Sidebar.Position = UDim2.new(0, 0, 0, 40)
-Sidebar.Size = UDim2.new(0, 160, 1, -40)
-Sidebar.BorderSizePixel = 0
-
-local Content = Instance.new("Frame", MainFrame)
-Content.BackgroundColor3 = THEME.Bg
-Content.Position = UDim2.new(0, 170, 0, 50)
-Content.Size = UDim2.new(1, -180, 1, -60)
-Content.BackgroundTransparency = 1
-
--- Animation Loop (Lightweight)
-task.spawn(function()
-    while MainFrame.Parent do
-        local t = TweenService:Create(UIGradient, TweenInfo.new(3, Enum.EasingStyle.Linear), {Rotation = 360 + 45})
-        t:Play() t.Completed:Wait()
-        UIGradient.Rotation = 45
-    end
-end)
-
--- Minimize Logic
-local IsMinimized = false
-local function ToggleMinimize()
-    IsMinimized = not IsMinimized
-    if IsMinimized then
-        TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 600, 0, 40)}):Play()
-        Sidebar.Visible = false
-        Content.Visible = false
-    else
-        TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 600, 0, 400)}):Play()
-        task.wait(0.3)
-        Sidebar.Visible = true
-        Content.Visible = true
-    end
-end
-
--- Control Buttons
-local function CreateControlBtn(text, xOffset, color, callback)
-    local Btn = Instance.new("TextButton", Header)
-    Btn.Size = UDim2.new(0, 35, 0, 35)
-    Btn.AnchorPoint = Vector2.new(1, 0.5)
-    Btn.Position = UDim2.new(1, xOffset, 0.5, 0)
-    Btn.BackgroundColor3 = Color3.fromRGB(255,255,255)
-    Btn.BackgroundTransparency = 0.95
-    Btn.Text = text
-    Btn.TextColor3 = color
-    Btn.Font = Enum.Font.GothamBold
-    Btn.TextSize = 18
-    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
-    Btn.MouseButton1Click:Connect(callback)
-end
-CreateControlBtn("X", -5, Color3.fromRGB(255, 80, 80), function() ScreenGui:Destroy() end)
-CreateControlBtn("-", -45, Color3.fromRGB(255, 255, 255), ToggleMinimize)
-
--- [[ UI FUNCTIONS ]]
-local CurrentPage = nil
-function CreateTab(text)
-    local Btn = Instance.new("TextButton", Sidebar)
-    Btn.Size = UDim2.new(1, -10, 0, 35)
-    Btn.BackgroundColor3 = THEME.Bg
-    Btn.BackgroundTransparency = 1
-    Btn.Text = "  " .. text
-    Btn.TextColor3 = Color3.fromRGB(150,150,150)
-    Btn.Font = Enum.Font.GothamBold
-    Btn.TextSize = 13
-    Btn.TextXAlignment = Enum.TextXAlignment.Left
-    
-    local List = Sidebar:FindFirstChild("UIListLayout") or Instance.new("UIListLayout", Sidebar)
-    List.SortOrder = Enum.SortOrder.LayoutOrder
-    List.Padding = UDim.new(0, 5)
-    if not Sidebar:FindFirstChild("UIPadding") then
-        local p = Instance.new("UIPadding", Sidebar)
-        p.PaddingTop = UDim.new(0, 10)
-        p.PaddingLeft = UDim.new(0, 10)
-    end
-
-    local Page = Instance.new("ScrollingFrame", Content)
-    Page.Size = UDim2.new(1, 0, 1, 0)
-    Page.BackgroundTransparency = 1
-    Page.ScrollBarThickness = 3
-    Page.Visible = false
-    local PL = Instance.new("UIListLayout", Page)
-    PL.Padding = UDim.new(0, 8)
-    PL.SortOrder = Enum.SortOrder.LayoutOrder
-
-    Btn.MouseButton1Click:Connect(function()
-        if CurrentPage then
-            CurrentPage.Btn.TextColor3 = Color3.fromRGB(150,150,150)
-            CurrentPage.Page.Visible = false
-        end
-        CurrentPage = {Btn = Btn, Page = Page}
-        Btn.TextColor3 = THEME.Accent
-        Page.Visible = true
-    end)
-    
-    if CurrentPage == nil then
-        CurrentPage = {Btn = Btn, Page = Page}
-        Btn.TextColor3 = THEME.Accent
-        Page.Visible = true
-    end
-    return Page
-end
-
-function CreateToggle(parent, title, desc, default, callback)
-    local Frame = Instance.new("Frame", parent)
-    Frame.Size = UDim2.new(1, -5, 0, 50)
-    Frame.BackgroundColor3 = THEME.Item
-    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
-    
-    local LTitle = Instance.new("TextLabel", Frame)
-    LTitle.Size = UDim2.new(1, -60, 0, 25)
-    LTitle.Position = UDim2.new(0, 10, 0, 2)
-    LTitle.BackgroundTransparency = 1
-    LTitle.Text = title
-    LTitle.TextColor3 = THEME.Text
-    LTitle.Font = Enum.Font.GothamBold
-    LTitle.TextSize = 13
-    LTitle.TextXAlignment = Enum.TextXAlignment.Left
-    
-    local LDesc = Instance.new("TextLabel", Frame)
-    LDesc.Size = UDim2.new(1, -60, 0, 15)
-    LDesc.Position = UDim2.new(0, 10, 0, 25)
-    LDesc.BackgroundTransparency = 1
-    LDesc.Text = desc
-    LDesc.TextColor3 = Color3.fromRGB(150,150,150)
-    LDesc.Font = Enum.Font.Gotham
-    LDesc.TextSize = 10
-    LDesc.TextXAlignment = Enum.TextXAlignment.Left
-    
-    local TBtn = Instance.new("TextButton", Frame)
-    TBtn.Size = UDim2.new(0, 40, 0, 20)
-    TBtn.Position = UDim2.new(1, -50, 0.5, -10)
-    TBtn.BackgroundColor3 = default and THEME.Accent or Color3.fromRGB(50,50,60)
-    TBtn.Text = ""
-    Instance.new("UICorner", TBtn).CornerRadius = UDim.new(0, 4)
-    
-    TBtn.MouseButton1Click:Connect(function()
-        default = not default
-        TBtn.BackgroundColor3 = default and THEME.Accent or Color3.fromRGB(50,50,60)
-        pcall(function() StarterGui:SetCore("SendNotification", {Title="System", Text=title.." : "..(default and "ON" or "OFF"), Duration=1}) end)
-        callback(default)
-    end)
-end
-
-function CreateButton(parent, text, callback)
-    local Btn = Instance.new("TextButton", parent)
-    Btn.Size = UDim2.new(1, -5, 0, 35)
-    Btn.BackgroundColor3 = THEME.Item
-    Btn.Text = text
-    Btn.TextColor3 = THEME.Text
-    Btn.Font = Enum.Font.GothamBold
-    Btn.TextSize = 12
-    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
-    Btn.MouseButton1Click:Connect(callback)
-end
-
-function CreateInfo(parent, label, value)
-    local Frame = Instance.new("Frame", parent)
-    Frame.Size = UDim2.new(1, -5, 0, 30)
-    Frame.BackgroundColor3 = THEME.Item
-    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
-    local L = Instance.new("TextLabel", Frame)
-    L.Size = UDim2.new(0.4, 0, 1, 0)
-    L.Position = UDim2.new(0, 10, 0, 0)
-    L.BackgroundTransparency = 1
-    L.Text = label
-    L.TextColor3 = Color3.fromRGB(180,180,180)
-    L.Font = Enum.Font.Gotham
-    L.TextSize = 12
-    L.TextXAlignment = Enum.TextXAlignment.Left
-    local V = Instance.new("TextLabel", Frame)
-    V.Size = UDim2.new(0.6, -20, 1, 0)
-    V.Position = UDim2.new(0.4, 0, 0, 0)
-    V.BackgroundTransparency = 1
-    V.Text = value
-    V.TextColor3 = THEME.Accent
-    V.Font = Enum.Font.GothamBold
-    V.TextSize = 12
-    V.TextXAlignment = Enum.TextXAlignment.Right
-end
-
--- =============================================================
--- 5. MENU CONTENT
+-- 5. LOGIC CORE (OPTIMIZED)
 -- =============================================================
 
--- Tab 1: Auto Mancing
-local Tab1 = CreateTab("Auto Mancing")
-CreateToggle(Tab1, "Auto Fish V3", "Auto Click + Shake + Perfect Reel", false, function(s) CONFIG.IsAutoFish = s end)
-CreateToggle(Tab1, "AFK Level 500", "No-Life Rod Mode (24H Farm)", false, function(s) CONFIG.IsAFKLevel = s; CONFIG.IsAutoFish = s end)
+-- [[ TELEPORT & GODMODE ]]
+local function TP(pos)
+    local C = LP.Character
+    if not C or not C:FindFirstChild("HumanoidRootPart") then return end
+    local Root = C.HumanoidRootPart
+    
+    -- God Mode Inject
+    if C.IsGodMode then
+        if C:FindFirstChild("Humanoid") then C.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false) end
+        for _,v in pairs(WS:GetDescendants()) do if v.Name=="Lava" then v.CanTouch=false; v.CanCollide=true end end
+    end
 
--- Tab 2: Auto Sell
-local Tab2 = CreateTab("Auto Sell")
-CreateToggle(Tab2, "Teleport ke Merchant", "ON: Ke Merchant | OFF: Balik", false, function(s) CONFIG.IsAutoSell = s end)
+    local Time = (Root.Position - pos.Position).Magnitude / C.FlySpeed
+    local Tw = TS:Create(Root, TweenInfo.new(Time, Enum.EasingStyle.Linear), {CFrame=pos})
+    local Conn = RS.Stepped:Connect(function() for _,v in pairs(C:GetChildren()) do if v:IsA("BasePart") then v.CanCollide=false end end end)
+    Tw:Play(); Tw.Completed:Wait(); Conn:Disconnect()
+    Root.Anchored=true; wait(0.5); Root.Anchored=false
+end
 
--- Tab 3: Pulau & Zone
-local TabIsland = CreateTab("Pulau & Zone")
+-- [[ TABS & CONTENT ]]
+local T1 = AddTab("Auto Mancing")
+AddTog(T1, "Auto Fish V3", "Cast + Shake + Reel", false, function(s) C.IsAutoFish=s end)
+AddTog(T1, "AFK Level 500", "No-Life Mode (24H)", false, function(s) C.IsAFKLevel=s; C.IsAutoFish=s end)
+
+local T2 = AddTab("Auto Sell")
+AddTog(T2, "Auto Sell (Smart)", "Teleport Merchant Terdekat", false, function(s) C.IsAutoSell=s end)
+
+local T3 = AddTab("Pulau & Zone")
 local Islands = {
-    {"Moosewood", Vector3.new(380, 135, 230)},
-    {"Roslit Bay", Vector3.new(-1480, 132, 720)},
-    {"Terrapin Island", Vector3.new(-180, 135, 1950)},
-    ["Snowcap Island"] = Vector3.new(2620, 135, 2400),
-    ["Sunstone Island"] = Vector3.new(-930, 132, -1120),
-    ["Mushgrove Swamp"] = Vector3.new(2450, 130, -700),
-    ["Forsaken Shores"] = Vector3.new(-2500, 132, 1550),
-    ["Ancient Isle"] = Vector3.new(-3150, 140, 2600),
-    ["Statue of Sovereignty"] = Vector3.new(30, 140, -1020),
-    ["The Arch"] = Vector3.new(980, 130, -1240)
+    {"Moosewood", Vec3(380,135,230)}, {"Roslit Bay", Vec3(-1480,132,720)}, {"Terrapin", Vec3(-180,135,1950)},
+    {"Snowcap", Vec3(2620,135,2400)}, {"Sunstone", Vec3(-930,132,-1120)}, {"Swamp", Vec3(2450,130,-700)},
+    {"Forsaken", Vec3(-2500,132,1550)}, {"Ancient", Vec3(-3150,140,2600)}, {"Statue", Vec3(30,140,-1020)}, {"Arch", Vec3(980,130,-1240)}
 }
-for name, pos in pairs(Islands) do
-    if type(name) == "number" then -- Handle mixed table
-        CreateButton(TabIsland, "TP: " .. pos[1], function() TweenTP(CFrame.new(pos[2])) end)
-    else
-        CreateButton(TabIsland, "TP: " .. name, function() TweenTP(CFrame.new(pos)) end)
-    end
-end
+for _,v in ipairs(Islands) do AddBtn(T3, "TP: "..v[1], function() TP(CF(v[2])) end) end
 
--- Tab 4: Secret Rods
-local TabRod = CreateTab("Secret Rods")
+local T4 = AddTab("Secret Rods")
 local Rods = {
-    {N="Snowcap: Lost Rod", P=Vector3.new(2650, 140, 2450), I="Price: 2K | Guide: Masuk gua tebing bawah Snowcap."},
-    {N="Statue: Kings Rod", P=Vector3.new(30, 135, -1020), I="Price: 120K | Guide: Bayar Cole 400C, turun lift."},
-    {N="Roslit: Magma Rod", P=Vector3.new(-1830, 165, 160), I="Price: 15K | Guide: God Mode On! Jalan ke Orc."},
-    {N="Swamp: Fungal Rod", P=Vector3.new(2550, 135, -730), I="Price: Quest | Guide: Tangkap Alligator (Malam)."},
-    {N="Deep: Trident Rod", P=Vector3.new(-970, 135, 1330), I="Price: Quest | Guide: 5 Relics @ Deep."}
+    {"Snowcap: Lost Rod", Vec3(2650,140,2450), "2K | Gua Bawah"},
+    {"Statue: Kings Rod", Vec3(30,135,-1020), "120K | Bayar Cole"},
+    {"Roslit: Magma Rod", Vec3(-1830,165,160), "15K | Auto God Mode!"},
+    {"Swamp: Fungal Rod", Vec3(2550,135,-730), "Quest | Alligator"},
+    {"Deep: Trident", Vec3(-970,135,1330), "Quest | 5 Relics"},
+    {"Forsaken: Scurvy", Vec3(-2550,135,1630), "50K | Pirate Cave"}
 }
-for _, d in ipairs(Rods) do
-    CreateButton(TabRod, "TP: " .. d.N, function()
-        if string.find(d.N, "Magma") then CONFIG.IsGodMode = true end
-        TweenTP(CFrame.new(d.P))
-        pcall(function() StarterGui:SetCore("SendNotification", {Title="Rod Info", Text=d.I, Duration=10}) end)
+for _,v in ipairs(Rods) do
+    AddBtn(T4, v[1], function()
+        if v[1]:find("Magma") then C.IsGodMode=true; Notif("GOD MODE", "Anti-Lava Active!", 3) else C.IsGodMode=false end
+        TP(CF(v[2])); Notif("Info", v[3], 5)
     end)
 end
 
--- Tab 5: Events
-local TabEvent = CreateTab("Events")
-CreateButton(TabEvent, "[AUTO] Quest Brick Rod", function()
-    local Locs = {Vector3.new(-1480, 135, 720), Vector3.new(-3150, 140, 2600), Vector3.new(-970, 135, 1330), Vector3.new(450, 150, 230)}
-    for i, v in ipairs(Locs) do
-        TweenTP(CFrame.new(v))
-        pcall(function() StarterGui:SetCore("SendNotification", {Title="Quest", Text="Step " .. i, Duration=3}) end)
-        task.wait(4)
-    end
+local T5 = AddTab("Events & Quests")
+AddBtn(T5, "[AUTO] Quest Brick Rod", function()
+    local L = {Vec3(-1480,135,720), Vec3(-3150,140,2600), Vec3(-970,135,1330), Vec3(450,150,230)}
+    for i,p in ipairs(L) do Notif("Quest", "Step "..i, 3); TP(CF(p)); wait(1) if i==4 then Notif("Done","Talk to NPC!",5) else wait(5) end end
 end)
-CreateButton(TabEvent, "[AUTO] Find Midas", function()
-    local ship = nil
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v.Name == "Travelling Merchant" then ship = v break end
-    end
-    if ship then TweenTP(ship.PrimaryPart.CFrame * CFrame.new(0,10,0)) else 
-        pcall(function() StarterGui:SetCore("SendNotification", {Title="System", Text="Not Found", Duration=2}) end) 
-    end
+AddBtn(T5, "[AUTO] Find Midas", function()
+    local s; for _,v in pairs(WS:GetDescendants()) do if v.Name=="Travelling Merchant" then s=v break end end
+    if s then TP(s.PrimaryPart.CFrame*CF(0,10,0)); Notif("Success","Midas Found!",3) else Notif("Fail","Not Spawned",2) end
+end)
+AddBtn(T5, "[AUTO] Find Sharks", function()
+    local t; for _,v in pairs(WS:GetDescendants()) do if v.Name:find("Shark") or v.Name:find("Megalodon") then t=v break end end
+    if t then TP(t.PrimaryPart.CFrame*CF(0,20,0)); Notif("Danger","Boss Found!",3) else Notif("Fail","No Boss",2) end
 end)
 
--- Tab 6: Character
-local TabChar = CreateTab("Character")
-CreateToggle(TabChar, "Walk on Water", "Berjalan di atas Air", false, function(s) CONFIG.IsWaterWalk = s end)
-CreateToggle(TabChar, "Infinite Jump", "Lompat di udara", false, function(s) CONFIG.IsInfJump = s end)
-CreateToggle(TabChar, "God Mode", "Kebal Lava (Roslit)", false, function(s) CONFIG.IsGodMode = s end)
-CreateToggle(TabChar, "Smart NoClip", "Tembus Tembok", false, function(s) CONFIG.IsNoClip = s end)
+local T6 = AddTab("Visuals")
+AddTog(T6, "ESP Player", "Box & Name", false, function(s) C.IsESP=s end)
+AddTog(T6, "Vision (NPC)", "Wallhack Rod NPC", false, function(s) C.IsVision=s end)
+AddTog(T6, "Infinite Jump", "Spasi di udara", false, function(s) C.IsInfJump=s end)
+AddTog(T6, "Fullbright", "Selalu Terang", false, function(s) C.IsFullBright=s; if not s then Lig.ClockTime=12 end end)
 
--- Tab 7: Visuals
-local TabVis = CreateTab("Visuals")
-CreateToggle(TabVis, "Vision Mode (NPC)", "Wallhack NPC Rod/Quest", false, function(s) CONFIG.IsVision = s end)
-CreateToggle(TabVis, "ESP Player", "Wallhack Biru Neon", false, function(s) CONFIG.IsESP = s end)
-CreateToggle(TabVis, "Always Day", "Terang Terus (Fullbright)", false, function(s) CONFIG.IsFullBright = s; if not s then Lighting.ClockTime = 12 end end)
+local T7 = AddTab("System")
+AddTog(T7, "God Mode", "Anti-Lava Roslit", false, function(s) C.IsGodMode=s end)
+AddTog(T7, "Walk on Water", "Jalan di Air", false, function(s) C.IsWaterWalk=s end)
+AddTog(T7, "NoClip", "Tembus Tembok", false, function(s) C.IsNoClip=s end)
+AddTog(T7, "Anti-AFK", "No Disconnect", true, function(s) C.IsAntiAFK=s end)
+AddTog(T7, "Anti-Admin", "Auto Kick Staff", true, function(s) C.IsBypass=s end)
 
--- Tab 8: Info
-local TabInfo = CreateTab("Info")
-CreateInfo(TabInfo, "Owner:", "ZAYANGGGGG")
-CreateInfo(TabInfo, "UID:", "1398015808")
-CreateInfo(TabInfo, "Web:", "www.YuuVins.online")
-CreateInfo(TabInfo, "Status:", "PREMIUM ACTIVE")
-CreateInfo(TabInfo, "Version:", "V9.5 Optimized")
+local T8 = AddTab("Info")
+AddInfo(T8, "Owner", "ZAYANGGGGG"); AddInfo(T8, "UID", "1398015808"); AddInfo(T8, "Ver", "V10 Optimized")
 
 -- =============================================================
--- 6. OPTIMIZED LOGIC ENGINE
+-- 6. LOOPS & LOGIC (HIGH SPEED)
 -- =============================================================
 
--- [[ TELEPORT ]]
-function TweenTP(cframe)
-    local char = LocalPlayer.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-    local root = char.HumanoidRootPart
-    
-    -- Auto God Mode Logic
-    if CONFIG.IsGodMode then
-        local h = char:FindFirstChild("Humanoid")
-        if h then h:SetStateEnabled(Enum.HumanoidStateType.Dead, false) end
-    end
-
-    local dist = (root.Position - cframe.Position).Magnitude
-    local time = dist / CONFIG.FlySpeed
-    local tween = TweenService:Create(root, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = cframe})
-    
-    local conn = RunService.Stepped:Connect(function()
-        for _, v in pairs(char:GetChildren()) do if v:IsA("BasePart") then v.CanCollide = false end end
-    end)
-    tween:Play()
-    tween.Completed:Wait()
-    conn:Disconnect()
-    
-    root.Anchored = true
-    task.wait(0.5)
-    root.Anchored = false
-end
-
--- [[ AUTO FISH V3 ]]
-task.spawn(function()
+-- Auto Fish
+spawn(function()
     while true do
-        task.wait(0.2)
-        if CONFIG.IsAutoFish then
-            local Char = LocalPlayer.Character
-            if Char then
-                local Tool = Char:FindFirstChildOfClass("Tool")
-                if Tool and not Tool:FindFirstChild("bobber") then
-                    VirtualInputManager:SendMouseButtonEvent(0,0,0, true, game, 1)
-                    task.wait(1)
-                    VirtualInputManager:SendMouseButtonEvent(0,0,0, false, game, 1)
-                    task.wait(1.5)
-                end
+        wait(0.1)
+        if C.IsAutoFish and LP.Character then
+            local T = LP.Character:FindFirstChildOfClass("Tool")
+            if T and not T:FindFirstChild("bobber") then
+                VIM:SendMouseButtonEvent(0,0,0,true,game,1); wait(1)
+                VIM:SendMouseButtonEvent(0,0,0,false,game,1); wait(1.5)
             end
         end
     end
 end)
 
-RunService.Heartbeat:Connect(function()
-    if CONFIG.IsAutoFish then
-        local GUI = LocalPlayer:FindFirstChild("PlayerGui")
-        if GUI then
-            -- Shake
-            local ShakeUI = GUI:FindFirstChild("shakeui")
-            if ShakeUI and ShakeUI.Enabled then
-                local Btn = ShakeUI:FindFirstChild("safezone") and ShakeUI.safezone:FindFirstChild("button")
-                if Btn and Btn.Visible then
-                    GuiService.SelectedObject = Btn
-                    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-                    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-                end
+RS.Heartbeat:Connect(function()
+    if C.IsAutoFish then
+        local G = LP:FindFirstChild("PlayerGui")
+        if G then
+            local S = G:FindFirstChild("shakeui")
+            if S and S.Enabled then
+                local B = S:FindFirstChild("safezone") and S.safezone:FindFirstChild("button")
+                if B and B.Visible then GS.SelectedObject=B; VIM:SendKeyEvent(true,Enum.KeyCode.Return,false,game); VIM:SendKeyEvent(false,Enum.KeyCode.Return,false,game) end
             end
-            -- Reel
-            local ReelUI = GUI:FindFirstChild("reel")
-            if ReelUI and ReelUI.Enabled then
-                local Bar = ReelUI:FindFirstChild("bar")
+            local R = G:FindFirstChild("reel")
+            if R and R.Enabled then
+                local Bar = R:FindFirstChild("bar")
                 if Bar and Bar:FindFirstChild("fish") and Bar:FindFirstChild("playerbar") then
-                    if Bar.fish.Position.X.Scale > Bar.playerbar.Position.X.Scale then
-                        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
-                    else
-                        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
-                    end
+                    if Bar.fish.Position.X.Scale > Bar.playerbar.Position.X.Scale then VIM:SendKeyEvent(true,Enum.KeyCode.Space,false,game)
+                    else VIM:SendKeyEvent(false,Enum.KeyCode.Space,false,game) end
                 end
-            end
+            else VIM:SendKeyEvent(false,Enum.KeyCode.Space,false,game) end
         end
     end
-end)
-
--- [[ SMART AUTO SELL (DISTANCE CHECK) ]]
-task.spawn(function()
-    while true do
-        task.wait(1) -- Optimized check rate
-        if CONFIG.IsAutoSell then
-            if not CONFIG.SavedPosition and LocalPlayer.Character then
-                CONFIG.SavedPosition = LocalPlayer.Character.HumanoidRootPart.CFrame
+    
+    -- Water Walk
+    if C.IsWaterWalk and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+        local H = LP.Character.HumanoidRootPart
+        local R = WS:Raycast(H.Position, Vec3(0,-15,0))
+        if R and R.Material == Enum.Material.Water then
+            if not WS:FindFirstChild("WPlat") then 
+                local P = Instance.new("Part", WS); P.Name="WPlat"; P.Anchored=true; P.Transparency=1; P.Size=Vec3(10,1,10)
             end
-            
-            -- Find nearest Merchant
-            local Nearest, MinDist = nil, 999999
-            for _, v in pairs(workspace:GetDescendants()) do
-                if v.Name == "Merchant" and v:FindFirstChild("HumanoidRootPart") then
-                    local d = (LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
-                    if d < MinDist then MinDist = d; Nearest = v end
-                end
-            end
-            
-            if Nearest and MinDist > 15 then
-                TweenTP(Nearest.HumanoidRootPart.CFrame * CFrame.new(0,0,3))
-            end
-        else
-            if CONFIG.SavedPosition and LocalPlayer.Character then
-                local d = (LocalPlayer.Character.HumanoidRootPart.Position - CONFIG.SavedPosition.Position).Magnitude
-                if d > 15 then
-                    TweenTP(CONFIG.SavedPosition)
-                    CONFIG.SavedPosition = nil
-                end
-            end
-        end
+            WS.WPlat.Position = Vec3(H.Position.X, R.Position.Y-0.5, H.Position.Z)
+        elseif WS:FindFirstChild("WPlat") then WS.WPlat:Destroy() end
     end
-end)
-
--- [[ OPTIMIZED VISUALS (CACHE SYSTEM) ]]
-local VisualCache = {}
--- Update Cache every 3 seconds (Fix Lag)
-task.spawn(function()
-    while true do
-        table.clear(VisualCache)
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v:IsA("Model") and v:FindFirstChild("Humanoid") then
-                if CONFIG.IsVision and (string.find(v.Name, "Merchant") or string.find(v.Name, "Orc")) then
-                    table.insert(VisualCache, {Obj=v, Type="NPC"})
-                end
-            end
-        end
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer and p.Character then
-                table.insert(VisualCache, {Obj=p.Character, Type="Player", Plr=p})
-            end
-        end
-        task.wait(3)
-    end
-end)
-
--- Render Loop
-RunService.RenderStepped:Connect(function()
-    if CONFIG.IsESP or CONFIG.IsVision then
-        for _, item in pairs(VisualCache) do
-            local Model = item.Obj
-            if Model and Model:FindFirstChild("HumanoidRootPart") then
-                -- Logic NPC
-                if item.Type == "NPC" and CONFIG.IsVision then
-                    if not Model:FindFirstChild("VisESP") then
-                        local h = Instance.new("Highlight", Model)
-                        h.Name = "VisESP"; h.FillColor = THEME.NPC_Color; h.OutlineColor = Color3.new(1,1,1)
-                    end
-                -- Logic Player
-                elseif item.Type == "Player" and CONFIG.IsESP then
-                    if not Model:FindFirstChild("PlrESP") then
-                        local h = Instance.new("Highlight", Model)
-                        h.Name = "PlrESP"; h.FillColor = THEME.ESP_Color
-                        
-                        local b = Instance.new("BillboardGui", Model.HumanoidRootPart)
-                        b.Name = "Info"; b.Size = UDim2.new(0,200,0,50); b.AlwaysOnTop=true; b.StudsOffset=Vector3.new(0,3,0)
-                        local t = Instance.new("TextLabel", b); t.Size=UDim2.new(1,0,1,0); t.BackgroundTransparency=1
-                        t.Font=Enum.Font.Bold; t.TextColor3=THEME.ESP_Color; t.TextStrokeTransparency=0
-                        t.Text = item.Plr.DisplayName
-                    end
-                end
-            end
-        end
-    end
-end)
-
--- [[ SYSTEMS (WATER / JUMP / FULLBRIGHT) ]]
-local WaterPlat = Instance.new("Part", workspace)
-WaterPlat.Anchored=true; WaterPlat.Transparency=1; WaterPlat.Size=Vector3.new(8,1,8); WaterPlat.CanCollide=true
-
-RunService.Heartbeat:Connect(function()
-    -- Water Walk Fix
-    if CONFIG.IsWaterWalk and LocalPlayer.Character then
-        local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if root then
-            local ray = workspace:Raycast(root.Position, Vector3.new(0,-15,0))
-            if ray and ray.Material == Enum.Material.Water then
-                WaterPlat.Position = Vector3.new(root.Position.X, ray.Position.Y - 0.5, root.Position.Z)
-            else
-                WaterPlat.Position = Vector3.new(0,-1000,0)
-            end
-        end
-    else
-        WaterPlat.Position = Vector3.new(0,-1000,0)
+    
+    -- God Mode
+    if C.IsGodMode and LP.Character then
+        local H = LP.Character:FindFirstChild("Humanoid")
+        if H then H:SetStateEnabled(15, false); if H.Health<100 then H.Health=100 end end
+        for _,v in pairs(WS:GetDescendants()) do if v.Name=="Lava" then v.CanTouch=false; v.CanCollide=true end end
     end
     
     -- Fullbright
-    if CONFIG.IsFullBright then
-        Lighting.ClockTime = 12
-        Lighting.Brightness = 2
-        Lighting.GlobalShadows = false
+    if C.IsFullBright then Lig.ClockTime=12; Lig.Brightness=2 end
+end)
+
+-- Auto Sell
+spawn(function()
+    while true do
+        wait(1)
+        if C.IsAutoSell and LP.Character then
+            if not C.SavedPosition then C.SavedPosition = LP.Character.HumanoidRootPart.CFrame end
+            local M, D = nil, 9e9
+            for _,v in pairs(WS:GetDescendants()) do 
+                if v.Name=="Merchant" and v:FindFirstChild("HumanoidRootPart") then
+                    local d = (LP.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
+                    if d < D then D=d; M=v end
+                end
+            end
+            if M and D > 15 then TP(M.HumanoidRootPart.CFrame*CF(0,0,3)) end
+        elseif not C.IsAutoSell and C.SavedPosition and LP.Character then
+            if (LP.Character.HumanoidRootPart.Position - C.SavedPosition.Position).Magnitude > 15 then
+                TP(C.SavedPosition); C.SavedPosition=nil
+            end
+        end
     end
 end)
 
--- Inf Jump
-UserInputService.JumpRequest:Connect(function()
-    if CONFIG.IsInfJump and LocalPlayer.Character then
-        local h = LocalPlayer.Character:FindFirstChild("Humanoid")
-        if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end
+-- Visuals
+spawn(function()
+    while true do
+        wait(1)
+        for _,v in pairs(WS:GetDescendants()) do
+            if v:IsA("Model") and v:FindFirstChild("Humanoid") then
+                if C.IsVision and (v.Name:find("Merchant") or v.Name:find("Orc")) then
+                    if not v:FindFirstChild("Vis") then 
+                        local h=Make("Highlight",{Parent=v,Name="Vis",FillColor=T.NPC,OutlineColor=RGB(255,255,255),DepthMode=0})
+                        Make("BillboardGui",{Parent=v.Head,Name="Info",Size=UD2(0,100,0,50),AlwaysOnTop=true,Children={
+                            Make("TextLabel",{Size=UD2(1,0,1,0),BackgroundTransparency=1,Text=v.Name,TextColor3=T.NPC,Font=2,TextSize=10})
+                        }})
+                    end
+                elseif not C.IsVision and v:FindFirstChild("Vis") then v.Vis:Destroy(); if v.Head:FindFirstChild("Info") then v.Head.Info:Destroy() end end
+            end
+        end
+        for _,p in pairs(Plrs:GetPlayers()) do
+            if p~=LP and p.Character then
+                if C.IsESP then
+                    if not p.Character:FindFirstChild("ESP") then Make("Highlight",{Parent=p.Character,Name="ESP",FillColor=T.ESP,DepthMode=0}) end
+                elseif p.Character:FindFirstChild("ESP") then p.Character.ESP:Destroy() end
+            end
+        end
     end
 end)
 
--- [[ BOOT ]]
-task.spawn(function()
-    task.wait(5)
-    ScreenGui.Enabled = true
-    MainFrame.Size = UDim2.new(0, 0, 0, 0)
-    TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Elastic), {Size = UDim2.new(0, 600, 0, 400)}):Play()
+-- Security
+spawn(function()
+    LP.Idled:Connect(function() if C.IsAntiAFK then VU:CaptureController(); VU:ClickButton2(Vector2.new()) end end)
+    while wait(5) do
+        if C.IsBypass then
+            for _,p in pairs(Plrs:GetPlayers()) do
+                if p~=LP then
+                    local s,r = pcall(function() return p:GetRoleInGroup(C.GrpID) end)
+                    if s and r then for _,b in ipairs(C.Bad) do if r==b then LP:Kick("Staff: "..p.Name) end end end
+                end
+            end
+        end
+    end
+end)
+
+-- Noclip & InfJump
+RS.Stepped:Connect(function() if C.IsNoClip and LP.Character then for _,v in pairs(LP.Character:GetChildren()) do if v:IsA("BasePart") then v.CanCollide=false end end end end)
+UIS.JumpRequest:Connect(function() if C.IsInfJump and LP.Character then LP.Character.Humanoid:ChangeState(3) end end)
+
+-- Finish Boot
+Screen.Enabled = true
+spawn(function()
+    Notif("WELCOME USER", "ZAYANGGGGG", 3)
+    Main.Size = UD2(0,0,0,0); TS:Create(Main,TweenInfo.new(0.5,Enum.EasingStyle.Back),{Size=UD2(0,600,0,400)}):Play()
 end)
