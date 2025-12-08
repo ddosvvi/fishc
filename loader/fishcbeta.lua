@@ -1,5 +1,5 @@
 -- =============================================================
--- YuuVins Exploids // ULTIMATE PREMIUM V6
+-- YuuVins Exploids // ULTIMATE PREMIUM V6.5
 -- Owner: ZAYANGGGGG
 -- Theme: Alchemy Blue Glow (Neon)
 -- =============================================================
@@ -56,20 +56,20 @@ for _, v in pairs(UI_Parent:GetChildren()) do
 end
 
 -- =============================================================
--- 1. NOTIFIKASI SYSTEM
+-- 1. NOTIFIKASI SYSTEM (BOOT SEQUENCE)
 -- =============================================================
 task.spawn(function()
     StarterGui:SetCore("SendNotification", {
         Title = "YuuVins Exploids",
-        Text = "Injecting Premium System...",
-        Duration = 3,
+        Text = "Authenticating Premium Key...",
+        Duration = 2.5,
         Icon = "rbxassetid://16369066601"
     })
-    task.wait(2)
+    task.wait(2.5)
     StarterGui:SetCore("SendNotification", {
         Title = "WELCOME USER",
-        Text = "Owner: ZAYANGGGGG",
-        Duration = 5,
+        Text = "Logged in as: ZAYANGGGGG",
+        Duration = 2.5,
     })
 end)
 
@@ -81,6 +81,7 @@ local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "YuuVinsExploidsUI"
 ScreenGui.Parent = UI_Parent
 ScreenGui.ResetOnSpawn = false
+ScreenGui.Enabled = false -- Hidden during boot
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
@@ -544,4 +545,13 @@ task.spawn(function()
             end
         end
     end
+end)
+
+-- Load GUI After 5 Seconds
+task.spawn(function()
+    task.wait(5) -- 2.5 + 2.5 from Notifs
+    ScreenGui.Enabled = true
+    -- Intro Animation
+    MainFrame.Size = UDim2.new(0, 0, 0, 0)
+    TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 350)}):Play()
 end)
