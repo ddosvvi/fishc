@@ -423,6 +423,19 @@ CreateButton(TabSpecial, "[AUTO] Find Whale Shark", function()
     end
 end)
 
+CreateButton(TabSpecial, "[AUTO] Find Great HammerHead Shark", function()
+    local target = nil
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v.Name == "Great HammerHead Shark" then target = v break end
+    end
+    if target then
+        TweenTP(target.PrimaryPart.CFrame * CFrame.new(0,20,0))
+        StarterGui:SetCore("SendNotification", {Title="Whale Found!", Text="Teleported above Whale.", Duration=5})
+    else
+        StarterGui:SetCore("SendNotification", {Title="Scanner", Text="Great HammerHead Shark not spawned.", Duration=3})
+    end
+end)
+
 -- TAB 6: VISUALS (NEW)
 local TabVis = CreateTab("Visuals")
 CreateToggle(TabVis, "Infinite Jump", "Lompat di udara (Spasi)", false, function(s) CONFIG.IsInfJump = s end)
