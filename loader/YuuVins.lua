@@ -61,19 +61,24 @@ end
 -- =============================================================
 -- 1. NOTIFIKASI SYSTEM
 -- =============================================================
+-- Notification
 task.spawn(function()
-    StarterGui:SetCore("SendNotification", {
-        Title = "YuuVins Exploids",
-        Text = "Injecting Visual Modules...",
-        Duration = 2.5,
-        Icon = "rbxassetid://110623538266999"
-    })
-    task.wait(2.5)
-    StarterGui:SetCore("SendNotification", {
-        Title = "WELCOME USER ",
-        Text = "Owner Xploid ZAYANGGGGG",
-        Duration = 2.5,
-    })
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = "YuuVins Exploids",
+            Text = "Optimizing Assets...",
+            Duration = 2,
+            Icon = "rbxassetid://16369066601"
+        })
+    end)
+    task.wait(2)
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = "WELCOME USER",
+            Text = "(System Ready)",
+            Duration = 3,
+        })
+    end)
 end)
 
 -- =============================================================
@@ -424,19 +429,6 @@ CreateButton(TabSpecial, "[AUTO] Find Whale Shark", function()
     end
 end)
 
-CreateButton(TabSpecial, "[AUTO] Find Great HammerHead Shark", function()
-    local target = nil
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v.Name == "Great HammerHead Shark" then target = v break end
-    end
-    if target then
-        TweenTP(target.PrimaryPart.CFrame * CFrame.new(0,20,0))
-        StarterGui:SetCore("SendNotification", {Title="Whale Found!", Text="Teleported above Whale.", Duration=5})
-    else
-        StarterGui:SetCore("SendNotification", {Title="Scanner", Text="Great HammerHead Shark not spawned.", Duration=3})
-    end
-end)
-
 -- TAB 6: VISUALS (NEW)
 local TabVis = CreateTab("Visuals")
 CreateToggle(TabVis, "Infinite Jump", "Lompat di udara (Spasi)", false, function(s) CONFIG.IsInfJump = s end)
@@ -644,12 +636,10 @@ end)
         end
     end)
 
--- Boot
+-- [[ BOOT ]]
 task.spawn(function()
     task.wait(5)
     ScreenGui.Enabled = true
-    MainFrame.Size = UDim2.new(0,0,0,0)
-    TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Elastic), {Size = UDim2.new(0,600,0,400)}):Play()
+    MainFrame.Size = UDim2.new(0, 0, 0, 0)
+    TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Elastic), {Size = UDim2.new(0, 600, 0, 400)}):Play()
 end)
-
--- OPTIMALKAN EXECUTOR GW , SCRIPT NYA JANGAN ADA YANG DI HAPUS HANYA OPTIMALKAN SAJA AGAR LOAD NYA 
