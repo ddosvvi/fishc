@@ -1,7 +1,7 @@
 -- =============================================================
--- YuuVins Exploids // ULTIMATE V7.3 (FIXED TELEPORT)
+-- YuuVins Exploids // ULTIMATE V7.5 (ROD GUIDES)
 -- Owner: ZAYANGGGGG
--- Status: SAFE DOCK TELEPORT (No Stuck/Water)
+-- Status: SAFE TELEPORT + ROD GUIDES + PRICE INFO
 -- =============================================================
 
 local Players = game:GetService("Players")
@@ -62,7 +62,7 @@ end
 task.spawn(function()
     StarterGui:SetCore("SendNotification", {
         Title = "YuuVins Exploids",
-        Text = "Calibrating Island Coordinates...",
+        Text = "Updating Rod Coordinates...",
         Duration = 2.5,
         Icon = "rbxassetid://16369066601"
     })
@@ -184,7 +184,7 @@ Content.BackgroundTransparency = 1
 local CurrentPage = nil
 function CreateTab(text)
     local Btn = Instance.new("TextButton", Sidebar)
-    Btn.Size = UDim2.new(1, -20, 0, 40)
+    Btn.Size = UDim2.new(1, -10, 0, 35)
     Btn.BackgroundColor3 = THEME.Bg
     Btn.BackgroundTransparency = 1
     Btn.Text = "  " .. text
@@ -340,7 +340,7 @@ local function TP_To_Position(pos)
 end
 
 -- =============================================================
--- 4. MENU CONTENT
+-- 4. MENU CONTENT (UPDATED)
 -- =============================================================
 
 -- TAB 1: AUTO MANCING
@@ -355,7 +355,7 @@ end)
 local Tab2 = CreateTab("Auto Sell")
 CreateToggle(Tab2, "Teleport ke Merchant", "ON: Ke Merchant Terdekat | OFF: Balik", false, function(s) CONFIG.IsAutoSell = s end)
 
--- TAB 3: PULAU (SAFE DOCK POSITIONS)
+-- TAB 3: PULAU (ISLANDS)
 local TabIsland = CreateTab("Pulau & Zone")
 local IslandMap = {
     ["Moosewood Dock"] = Vector3.new(380, 135, 230),
@@ -365,7 +365,7 @@ local IslandMap = {
     ["Sunstone Island Beach"] = Vector3.new(-930, 132, -1120),
     ["Mushgrove Swamp Dock"] = Vector3.new(2450, 130, -700),
     ["Forsaken Shores Beach"] = Vector3.new(-2500, 132, 1550),
-    ["Ancient Isle Entrance"] = Vector3.new(-3150, 140, 2600), -- Fix Height
+    ["Ancient Isle Entrance"] = Vector3.new(-3150, 140, 2600),
     ["Statue of Sovereignty"] = Vector3.new(30, 140, -1020),
     ["The Arch Stone"] = Vector3.new(980, 130, -1240)
 }
@@ -373,21 +373,34 @@ for name, pos in pairs(IslandMap) do
     CreateButton(TabIsland, "TP: " .. name, function() TweenTP(CFrame.new(pos)) end)
 end
 
--- TAB 4: SECRET RODS (SAFE SPOTS)
+-- TAB 4: SECRET RODS (WITH GUIDE)
 local TabRod = CreateTab("Secret Rods")
-local RodMap = {
-    ["Snowcap: Lost Rod (Cave Entrance)"] = Vector3.new(2620, 135, 2400),
-    ["Statue: Kings Rod (Mine Entrance)"] = Vector3.new(30, 140, -1020),
-    ["Arch: Destiny Rod (Top Rock)"] = Vector3.new(980, 150, -1240),
-    ["Roslit: Magma Rod (Volcano Mouth)"] = Vector3.new(-1800, 160, 500),
-    ["Swamp: Fungal Rod (Swamp Center)"] = Vector3.new(2450, 130, -700),
-    ["Ancient: Forgotten Fang (Waterfall)"] = Vector3.new(-3150, 135, 2600),
-    ["Deep: Trident & Depths (Buoy)"] = Vector3.new(-970, 132, 1330), -- Surface
-    ["Vertigo: Aurora/Nocturnal (Whirlpool)"] = Vector3.new(-100, 135, 1000), -- Surface
-    ["Forsaken: Scurvy/Sunken (Pirate Cave)"] = Vector3.new(-2500, 135, 1550)
+
+-- Data Table Rods (Posisi, Harga, Guide)
+local RodData = {
+    {Name = "Lost Rod", Pos = Vector3.new(2650, 140, 2450), Price = "2,000 C$", Guide = "Masuk gua di tebing bawah Snowcap."},
+    {Name = "Kings Rod", Pos = Vector3.new(30, 135, -1020), Price = "120,000 C$", Guide = "Bayar 400C$ ke Cole, turun lift ke Altar."},
+    {Name = "Destiny Rod", Pos = Vector3.new(980, 150, -1240), Price = "190,000 C$", Guide = "Lengkapi 70% Bestiary."},
+    {Name = "Magma Rod", Pos = Vector3.new(-1830, 165, 160), Price = "15,000 C$", Guide = "Bawa Pufferfish ke Orc di dalam Volcano."},
+    {Name = "Fungal Rod", Pos = Vector3.new(2550, 135, -730), Price = "Quest", Guide = "Tangkap Alligator (Malam/Foggy/Hujan)."},
+    {Name = "Forgotten Fang", Pos = Vector3.new(-3150, 135, 2600), Price = "Crafting", Guide = "Belakang air terjun Ancient Isle."},
+    {Name = "Trident Rod", Pos = Vector3.new(-970, 135, 1330), Price = "Quest", Guide = "Buka gerbang Desolate Deep (5 Relics)."},
+    {Name = "Aurora Rod", Pos = Vector3.new(-100, 135, 1000), Price = "90,000 C$", Guide = "Hanya muncul saat Event Aurora."},
+    {Name = "Scurvy Rod", Pos = Vector3.new(-2550, 135, 1630), Price = "50,000 C$", Guide = "Masuk gua Bajak Laut di Forsaken."}
 }
-for name, pos in pairs(RodMap) do
-    CreateButton(TabRod, "TP: " .. name, function() TweenTP(CFrame.new(pos)) end)
+
+for _, rod in ipairs(RodData) do
+    CreateButton(TabRod, "TP: " .. rod.Name, function()
+        -- 1. Teleport
+        TweenTP(CFrame.new(rod.Pos))
+        
+        -- 2. Show Guide Notification
+        StarterGui:SetCore("SendNotification", {
+            Title = rod.Name,
+            Text = "Price: " .. rod.Price .. "\nStep: " .. rod.Guide,
+            Duration = 10, -- Lama bacanya
+        })
+    end)
 end
 
 -- TAB 5: SPECIAL RODS
@@ -439,7 +452,7 @@ CreateInfo(Tab4, "Game:", gameName)
 -- 5. LOGIC ENGINE
 -- =============================================================
 
--- [[ AUTO FISH V3: DELAYED CAST & PERFECT REEL ]]
+-- [[ AUTO FISH V3: HOLD & RELEASE ]]
 task.spawn(function()
     while true do
         task.wait(0.2)
@@ -528,6 +541,7 @@ task.spawn(function()
     while true do
         task.wait(0.5)
         if CONFIG.IsAutoSell then
+            -- Save Posisi Awal
             if not CONFIG.SavedPosition and LocalPlayer.Character then
                 CONFIG.SavedPosition = LocalPlayer.Character.HumanoidRootPart.CFrame
             end
@@ -537,11 +551,13 @@ task.spawn(function()
                 local Root = LocalPlayer.Character.HumanoidRootPart
                 local Dist = (Root.Position - Merch.HumanoidRootPart.Position).Magnitude
                 
+                -- Teleport hanya jika jauh (>10 studs)
                 if Dist > 10 then
                     TweenTP(Merch.HumanoidRootPart.CFrame * CFrame.new(0,0,3))
                 end
             end
         else
+            -- Balik ke Posisi Awal
             if CONFIG.SavedPosition and LocalPlayer.Character then
                 local Root = LocalPlayer.Character.HumanoidRootPart
                 local Dist = (Root.Position - CONFIG.SavedPosition.Position).Magnitude
