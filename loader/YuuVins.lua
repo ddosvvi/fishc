@@ -1,30 +1,39 @@
+-- =============================================================
+-- YuuVins Exploids // ULTIMATE V9.5 (OPTIMIZED)
+-- Owner: ZAYANGGGGG
+-- Status: LAG FIXED + INSTANT LOAD + ALL FEATURES
+-- =============================================================
+
+-- [[ 1. SERVICES & VARIABLES (OPTIMIZED) ]]
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local GuiService = game:GetService("GuiService")
+local StarterGui = game:GetService("StarterGui")
+local Lighting = game:GetService("Lighting")
+local MarketplaceService = game:GetService("MarketplaceService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local VirtualUser = game:GetService("VirtualUser")
-local TweenService = game:GetService("TweenService")
-local StarterGui = game:GetService("StarterGui")
-local GuiService = game:GetService("GuiService")
 local CoreGui = game:GetService("CoreGui")
-local MarketplaceService = game:GetService("MarketplaceService")
-local Lighting = game:GetService("Lighting")
-local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+
+local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
--- [[ KONFIGURASI GLOBAL ]]
+-- [[ 2. CONFIGURATION ]]
 local CONFIG = {
     IsAutoFish = false,
     IsAutoSell = false,
     IsESP = false,
     IsVision = false,
-    IsAntiAFK = true, -- AFK 24JAM
-    IsBypass = true, -- ANTI KICK SERVER ADMIN
+    IsAntiAFK = true,
+    IsBypass = true,
     IsAFKLevel = false,
     IsGodMode = false,
-    IsInfJump = false,   -- Infinite Jump
     IsNoClip = false,
-    IsFullBright = false,-- Always Day
+    IsInfJump = false,
+    IsFullBright = false,
     
     SavedPosition = nil,
     FlySpeed = 300,
@@ -32,7 +41,6 @@ local CONFIG = {
     Blacklist = {"Trial Tester", "Trial Mod", "Moderator", "Senior Mod", "Admin", "Developer", "Creator"}
 }
 
--- [[ THEME PRESETS ]]
 local THEME = {
     Bg = Color3.fromRGB(10, 12, 20),
     Sidebar = Color3.fromRGB(15, 18, 30),
@@ -42,10 +50,10 @@ local THEME = {
     Glow1 = Color3.fromRGB(0, 180, 255),
     Glow2 = Color3.fromRGB(0, 80, 200),
     ESP_Color = Color3.fromRGB(0, 255, 255),
-    NPC_Color = Color3.fromRGB(255, 200, 0)
+    NPC_Color = Color3.fromRGB(255, 215, 0)
 }
 
--- [[ GET GUI ]]
+-- [[ 3. GUI MANAGER (SAFE LOAD) ]]
 local function GetSafeGui()
     local s, h = pcall(function() return gethui() end)
     if s and h then return h end
@@ -53,14 +61,11 @@ local function GetSafeGui()
 end
 local UI_Parent = GetSafeGui()
 
--- Cleanup
+-- Cleanup Old Instances
 for _, v in pairs(UI_Parent:GetChildren()) do
     if v.Name == "YuuVinsExploidsUI" then v:Destroy() end
 end
 
--- =============================================================
--- 1. NOTIFIKASI SYSTEM
--- =============================================================
 -- Notification
 task.spawn(function()
     pcall(function()
@@ -74,17 +79,16 @@ task.spawn(function()
     task.wait(2)
     pcall(function()
         StarterGui:SetCore("SendNotification", {
-            Title = "WELCOME USER",
-            Text = "(System Ready)",
+            Title = "WELCOME OWNER",
+            Text = "ZAYANGGGGG (System Ready)",
             Duration = 3,
         })
     end)
 end)
 
 -- =============================================================
--- 2. UI CONSTRUCTION
+-- 4. UI CONSTRUCTION (ALCHEMY STYLE)
 -- =============================================================
-
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "YuuVinsExploidsUI"
 ScreenGui.Parent = UI_Parent
@@ -113,15 +117,7 @@ UIGradient.Color = ColorSequence.new{
 UIGradient.Rotation = 45
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 
-task.spawn(function()
-    while MainFrame.Parent do
-        local t = TweenService:Create(UIGradient, TweenInfo.new(3, Enum.EasingStyle.Linear), {Rotation = 360 + 45})
-        t:Play() t.Completed:Wait()
-        UIGradient.Rotation = 45
-    end
-end)
-
--- Header Area
+-- Header
 local Header = Instance.new("Frame", MainFrame)
 Header.Name = "Header"
 Header.BackgroundColor3 = Color3.fromRGB(0,0,0)
@@ -138,7 +134,45 @@ Logo.TextColor3 = THEME.Accent
 Logo.TextSize = 18
 Logo.TextXAlignment = Enum.TextXAlignment.Left
 
--- Buttons (Minimize & Close)
+-- Sidebar & Content
+local Sidebar = Instance.new("Frame", MainFrame)
+Sidebar.BackgroundColor3 = THEME.Sidebar
+Sidebar.Position = UDim2.new(0, 0, 0, 40)
+Sidebar.Size = UDim2.new(0, 160, 1, -40)
+Sidebar.BorderSizePixel = 0
+
+local Content = Instance.new("Frame", MainFrame)
+Content.BackgroundColor3 = THEME.Bg
+Content.Position = UDim2.new(0, 170, 0, 50)
+Content.Size = UDim2.new(1, -180, 1, -60)
+Content.BackgroundTransparency = 1
+
+-- Animation Loop (Lightweight)
+task.spawn(function()
+    while MainFrame.Parent do
+        local t = TweenService:Create(UIGradient, TweenInfo.new(3, Enum.EasingStyle.Linear), {Rotation = 360 + 45})
+        t:Play() t.Completed:Wait()
+        UIGradient.Rotation = 45
+    end
+end)
+
+-- Minimize Logic
+local IsMinimized = false
+local function ToggleMinimize()
+    IsMinimized = not IsMinimized
+    if IsMinimized then
+        TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 600, 0, 40)}):Play()
+        Sidebar.Visible = false
+        Content.Visible = false
+    else
+        TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 600, 0, 400)}):Play()
+        task.wait(0.3)
+        Sidebar.Visible = true
+        Content.Visible = true
+    end
+end
+
+-- Control Buttons
 local function CreateControlBtn(text, xOffset, color, callback)
     local Btn = Instance.new("TextButton", Header)
     Btn.Size = UDim2.new(0, 35, 0, 35)
@@ -152,42 +186,11 @@ local function CreateControlBtn(text, xOffset, color, callback)
     Btn.TextSize = 18
     Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
     Btn.MouseButton1Click:Connect(callback)
-    return Btn
 end
-
-local IsMinimized = false
-local Sidebar, Content 
-
 CreateControlBtn("X", -5, Color3.fromRGB(255, 80, 80), function() ScreenGui:Destroy() end)
-local MiniBtn = CreateControlBtn("-", -45, Color3.fromRGB(255, 255, 255), function()
-    IsMinimized = not IsMinimized
-    if IsMinimized then
-        TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 600, 0, 40)}):Play()
-        Sidebar.Visible = false
-        Content.Visible = false
-    else
-        TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 600, 0, 400)}):Play()
-        task.wait(0.3)
-        Sidebar.Visible = true
-        Content.Visible = true
-    end
-end)
+CreateControlBtn("-", -45, Color3.fromRGB(255, 255, 255), ToggleMinimize)
 
--- Sidebar (Left)
-Sidebar = Instance.new("Frame", MainFrame)
-Sidebar.BackgroundColor3 = THEME.Sidebar
-Sidebar.Position = UDim2.new(0, 0, 0, 40)
-Sidebar.Size = UDim2.new(0, 160, 1, -40)
-Sidebar.BorderSizePixel = 0
-
--- Content Area (Right)
-Content = Instance.new("Frame", MainFrame)
-Content.BackgroundColor3 = THEME.Bg
-Content.Position = UDim2.new(0, 170, 0, 50)
-Content.Size = UDim2.new(1, -180, 1, -60)
-Content.BackgroundTransparency = 1
-
--- [[ TAB LOGIC ]]
+-- [[ UI FUNCTIONS ]]
 local CurrentPage = nil
 function CreateTab(text)
     local Btn = Instance.new("TextButton", Sidebar)
@@ -203,16 +206,16 @@ function CreateTab(text)
     local List = Sidebar:FindFirstChild("UIListLayout") or Instance.new("UIListLayout", Sidebar)
     List.SortOrder = Enum.SortOrder.LayoutOrder
     List.Padding = UDim.new(0, 5)
-    List.HorizontalAlignment = Enum.HorizontalAlignment.Center
     if not Sidebar:FindFirstChild("UIPadding") then
         local p = Instance.new("UIPadding", Sidebar)
         p.PaddingTop = UDim.new(0, 10)
+        p.PaddingLeft = UDim.new(0, 10)
     end
 
     local Page = Instance.new("ScrollingFrame", Content)
     Page.Size = UDim2.new(1, 0, 1, 0)
     Page.BackgroundTransparency = 1
-    Page.ScrollBarThickness = 2
+    Page.ScrollBarThickness = 3
     Page.Visible = false
     local PL = Instance.new("UIListLayout", Page)
     PL.Padding = UDim.new(0, 8)
@@ -236,7 +239,6 @@ function CreateTab(text)
     return Page
 end
 
--- [[ COMPONENT CREATOR ]]
 function CreateToggle(parent, title, desc, default, callback)
     local Frame = Instance.new("Frame", parent)
     Frame.Size = UDim2.new(1, -5, 0, 50)
@@ -273,6 +275,7 @@ function CreateToggle(parent, title, desc, default, callback)
     TBtn.MouseButton1Click:Connect(function()
         default = not default
         TBtn.BackgroundColor3 = default and THEME.Accent or Color3.fromRGB(50,50,60)
+        pcall(function() StarterGui:SetCore("SendNotification", {Title="System", Text=title.." : "..(default and "ON" or "OFF"), Duration=1}) end)
         callback(default)
     end)
 end
@@ -294,7 +297,6 @@ function CreateInfo(parent, label, value)
     Frame.Size = UDim2.new(1, -5, 0, 30)
     Frame.BackgroundColor3 = THEME.Item
     Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
-    
     local L = Instance.new("TextLabel", Frame)
     L.Size = UDim2.new(0.4, 0, 1, 0)
     L.Position = UDim2.new(0, 10, 0, 0)
@@ -304,7 +306,6 @@ function CreateInfo(parent, label, value)
     L.Font = Enum.Font.Gotham
     L.TextSize = 12
     L.TextXAlignment = Enum.TextXAlignment.Left
-    
     local V = Instance.new("TextLabel", Frame)
     V.Size = UDim2.new(0.6, -20, 1, 0)
     V.Position = UDim2.new(0.4, 0, 0, 0)
@@ -317,159 +318,127 @@ function CreateInfo(parent, label, value)
 end
 
 -- =============================================================
--- 3. MENU SETUP
+-- 5. MENU CONTENT
 -- =============================================================
 
--- TAB 1: AUTO MANCING
-local TabFish = CreateTab("Auto Mancing")
-CreateToggle(TabFish, "Auto Fish V3", "Auto Click + Shake + Perfect Reel", false, function(s) CONFIG.IsAutoFish = s end)
-CreateToggle(TabFish, "AFK Level 500", "No-Life Rod Mode (Auto Farm)", false, function(s) CONFIG.IsAFKLevel = s; CONFIG.IsAutoFish = s 
-    CONFIG.IsAFKLevel = s 
-    CONFIG.IsAutoFish = s 
-end)
+-- Tab 1: Auto Mancing
+local Tab1 = CreateTab("Auto Mancing")
+CreateToggle(Tab1, "Auto Fish V3", "Auto Click + Shake + Perfect Reel", false, function(s) CONFIG.IsAutoFish = s end)
+CreateToggle(Tab1, "AFK Level 500", "No-Life Rod Mode (24H Farm)", false, function(s) CONFIG.IsAFKLevel = s; CONFIG.IsAutoFish = s end)
 
--- TAB 2: AUTO SELL
-local TabSell = CreateTab("Auto Sell")
-CreateToggle(TabSell, "Teleport ke Merchant", "ON: Ke Merchant Terdekat | OFF: Balik", false, function(s) CONFIG.IsAutoSell = s end)
+-- Tab 2: Auto Sell
+local Tab2 = CreateTab("Auto Sell")
+CreateToggle(Tab2, "Teleport ke Merchant", "ON: Ke Merchant | OFF: Balik", false, function(s) CONFIG.IsAutoSell = s end)
 
--- TAB 3: PULAU (ISLANDS)
+-- Tab 3: Pulau & Zone
 local TabIsland = CreateTab("Pulau & Zone")
-local IslandMap = {
-    ["Moosewood Dock"] = Vector3.new(380, 135, 230),
-    ["Roslit Bay Dock"] = Vector3.new(-1480, 132, 720),
-    ["Terrapin Island Dock"] = Vector3.new(-180, 135, 1950),
-    ["Snowcap Island Dock"] = Vector3.new(2620, 135, 2400),
-    ["Sunstone Island Beach"] = Vector3.new(-930, 132, -1120),
-    ["Mushgrove Swamp Dock"] = Vector3.new(2450, 130, -700),
-    ["Forsaken Shores Beach"] = Vector3.new(-2500, 132, 1550),
-    ["Ancient Isle Entrance"] = Vector3.new(-3150, 140, 2600),
+local Islands = {
+    {"Moosewood", Vector3.new(380, 135, 230)},
+    {"Roslit Bay", Vector3.new(-1480, 132, 720)},
+    {"Terrapin Island", Vector3.new(-180, 135, 1950)},
+    ["Snowcap Island"] = Vector3.new(2620, 135, 2400),
+    ["Sunstone Island"] = Vector3.new(-930, 132, -1120),
+    ["Mushgrove Swamp"] = Vector3.new(2450, 130, -700),
+    ["Forsaken Shores"] = Vector3.new(-2500, 132, 1550),
+    ["Ancient Isle"] = Vector3.new(-3150, 140, 2600),
     ["Statue of Sovereignty"] = Vector3.new(30, 140, -1020),
-    ["The Arch Stone"] = Vector3.new(980, 130, -1240)
+    ["The Arch"] = Vector3.new(980, 130, -1240)
 }
-for name, pos in pairs(IslandMap) do
-    CreateButton(TabIsland, "TP: " .. name, function() TweenTP(CFrame.new(pos)) end)
+for name, pos in pairs(Islands) do
+    if type(name) == "number" then -- Handle mixed table
+        CreateButton(TabIsland, "TP: " .. pos[1], function() TweenTP(CFrame.new(pos[2])) end)
+    else
+        CreateButton(TabIsland, "TP: " .. name, function() TweenTP(CFrame.new(pos)) end)
+    end
 end
 
--- TAB 4: SECRET RODS
+-- Tab 4: Secret Rods
 local TabRod = CreateTab("Secret Rods")
-local RodMap = {
-    ["Snowcap: Lost Rod"] = {Pos=Vector3.new(2650, 140, 2450), Price="2,000 C$", Guide="Masuk gua di tebing bawah Snowcap."},
-    ["Statue: Kings Rod"] = {Pos=Vector3.new(30, 135, -1020), Price="120,000 C$", Guide="Bayar 400C$ ke Cole, turun lift ke Altar."},
-    ["Arch: Destiny Rod"] = {Pos=Vector3.new(980, 150, -1240), Price="190,000 C$", Guide="Lengkapi 70% Bestiary."},
-    ["Roslit: Magma Rod"] = {Pos=Vector3.new(-1830, 165, 160), Price="15,000 C$", Guide="God Mode Aktif! Jalan di atas lava ke Orc."},
-    ["Swamp: Fungal Rod"] = {Pos=Vector3.new(2550, 135, -730), Price="Quest", Guide="Tangkap Alligator (Malam/Foggy/Hujan)."},
-    ["Ancient: Forgotten Fang"] = {Pos=Vector3.new(-3150, 135, 2600), Price="Crafting", Guide="Belakang air terjun Ancient Isle."},
-    ["Deep: Trident Rod"] = {Pos=Vector3.new(-970, 135, 1330), Price="Quest", Guide="Buka gerbang Desolate Deep (5 Relics)."},
-    ["Vertigo: Aurora Rod"] = {Pos=Vector3.new(-100, 135, 1000), Price="90,000 C$", Guide="Hanya muncul saat Event Aurora."},
-    ["Forsaken: Scurvy Rod"] = {Pos=Vector3.new(-2550, 135, 1630), Price="50,000 C$", Guide="Masuk gua Bajak Laut di Forsaken."}
+local Rods = {
+    {N="Snowcap: Lost Rod", P=Vector3.new(2650, 140, 2450), I="Price: 2K | Guide: Masuk gua tebing bawah Snowcap."},
+    {N="Statue: Kings Rod", P=Vector3.new(30, 135, -1020), I="Price: 120K | Guide: Bayar Cole 400C, turun lift."},
+    {N="Roslit: Magma Rod", P=Vector3.new(-1830, 165, 160), I="Price: 15K | Guide: God Mode On! Jalan ke Orc."},
+    {N="Swamp: Fungal Rod", P=Vector3.new(2550, 135, -730), I="Price: Quest | Guide: Tangkap Alligator (Malam)."},
+    {N="Deep: Trident Rod", P=Vector3.new(-970, 135, 1330), I="Price: Quest | Guide: 5 Relics @ Deep."}
 }
-for name, data in pairs(RodMap) do
-    CreateButton(TabRod, "TP: " .. name, function()
-        if string.find(name, "Magma") then CONFIG.IsGodMode = true else CONFIG.IsGodMode = false end
-        TweenTP(CFrame.new(data.Pos))
-        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
+for _, d in ipairs(Rods) do
+    CreateButton(TabRod, "TP: " .. d.N, function()
+        if string.find(d.N, "Magma") then CONFIG.IsGodMode = true end
+        TweenTP(CFrame.new(d.P))
+        pcall(function() StarterGui:SetCore("SendNotification", {Title="Rod Info", Text=d.I, Duration=10}) end)
     end)
 end
 
--- TAB 5: EVENTS
-local TabSpecial = CreateTab("Events")
-CreateButton(TabSpecial, "[AUTO] Quest Brick Rod", function()
-    local locs = {
-        {Name="Brick 1 (Roslit)", Pos=Vector3.new(-1480, 135, 720)}, 
-        {Name="Brick 2 (Ancient)", Pos=Vector3.new(-3150, 140, 2600)},
-        {Name="Brick 3 (Deep Entrance)", Pos=Vector3.new(-970, 135, 1330)},
-        {Name="Claim NPC (Tree)", Pos=Vector3.new(450, 150, 230)}
-    }
-    for _, loc in ipairs(locs) do
-        StarterGui:SetCore("SendNotification", {Title="Quest", Text="Going to: " .. loc.Name, Duration=3})
-        TweenTP(CFrame.new(loc.Pos))
-        task.wait(1) 
-        if loc.Name == "Claim NPC (Tree)" then
-            StarterGui:SetCore("SendNotification", {Title="FINISH!", Text="Talk to the NPC to get Brick Rod!", Duration=10})
-        else
-            StarterGui:SetCore("SendNotification", {Title="Action", Text="Look for White Lego Brick!", Duration=5})
-            task.wait(6) 
-        end
+-- Tab 5: Events
+local TabEvent = CreateTab("Events")
+CreateButton(TabEvent, "[AUTO] Quest Brick Rod", function()
+    local Locs = {Vector3.new(-1480, 135, 720), Vector3.new(-3150, 140, 2600), Vector3.new(-970, 135, 1330), Vector3.new(450, 150, 230)}
+    for i, v in ipairs(Locs) do
+        TweenTP(CFrame.new(v))
+        pcall(function() StarterGui:SetCore("SendNotification", {Title="Quest", Text="Step " .. i, Duration=3}) end)
+        task.wait(4)
     end
 end)
-CreateButton(TabSpecial, "[AUTO] Find Midas Merchant", function()
+CreateButton(TabEvent, "[AUTO] Find Midas", function()
     local ship = nil
     for _, v in pairs(workspace:GetDescendants()) do
         if v.Name == "Travelling Merchant" then ship = v break end
     end
-    if ship then
-        TweenTP(ship.PrimaryPart.CFrame * CFrame.new(0,10,0))
-        StarterGui:SetCore("SendNotification", {Title="Midas Found!", Text="Teleported.", Duration=3})
-    else
-        StarterGui:SetCore("SendNotification", {Title="Not Found", Text="Merchant kapal tidak ada.", Duration=3})
-    end
-end)
-CreateButton(TabSpecial, "[AUTO] Find Great White Shark", function()
-    local target = nil
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v.Name == "Great White Shark" then target = v break end
-    end
-    if target then
-        TweenTP(target.PrimaryPart.CFrame * CFrame.new(0,20,0))
-        StarterGui:SetCore("SendNotification", {Title="Monster Found!", Text="Teleported above Shark.", Duration=5})
-    else
-        StarterGui:SetCore("SendNotification", {Title="Scanner", Text="Great White Shark not spawned.", Duration=3})
-    end
-end)
-CreateButton(TabSpecial, "[AUTO] Find Whale Shark", function()
-    local target = nil
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v.Name == "Whale Shark" then target = v break end
-    end
-    if target then
-        TweenTP(target.PrimaryPart.CFrame * CFrame.new(0,20,0))
-        StarterGui:SetCore("SendNotification", {Title="Whale Found!", Text="Teleported above Whale.", Duration=5})
-    else
-        StarterGui:SetCore("SendNotification", {Title="Scanner", Text="Whale Shark not spawned.", Duration=3})
+    if ship then TweenTP(ship.PrimaryPart.CFrame * CFrame.new(0,10,0)) else 
+        pcall(function() StarterGui:SetCore("SendNotification", {Title="System", Text="Not Found", Duration=2}) end) 
     end
 end)
 
--- TAB 6: VISUALS (NEW)
+-- Tab 6: Character
+local TabChar = CreateTab("Character")
+CreateToggle(TabChar, "Infinite Jump", "Lompat di udara", false, function(s) CONFIG.IsInfJump = s end)
+CreateToggle(TabChar, "God Mode", "Kebal Lava (Roslit)", false, function(s) CONFIG.IsGodMode = s end)
+CreateToggle(TabChar, "Smart NoClip", "Tembus Tembok", false, function(s) CONFIG.IsNoClip = s end)
+
+-- Tab 7: Visuals
 local TabVis = CreateTab("Visuals")
-CreateToggle(TabVis, "Infinite Jump", "Lompat di udara (Spasi)", false, function(s) CONFIG.IsInfJump = s end)
-CreateToggle(TabVis, "Always Day", "Terang Terus (Fullbright)", false, function(s) CONFIG.IsFullBright = s; if not s then Lighting.ClockTime = 12 end end)
 CreateToggle(TabVis, "Vision Mode (NPC)", "Wallhack NPC Rod/Quest", false, function(s) CONFIG.IsVision = s end)
 CreateToggle(TabVis, "ESP Player", "Wallhack Biru Neon", false, function(s) CONFIG.IsESP = s end)
+CreateToggle(TabVis, "Always Day", "Terang Terus (Fullbright)", false, function(s) CONFIG.IsFullBright = s; if not s then Lighting.ClockTime = 12 end end)
 
--- TAB 7: SYSTEM
-local TabSys = CreateTab("System")
-CreateToggle(TabSys, "NoClip", "Tembus Tembok, Lantai Aman", false, function(s) CONFIG.IsNoClip = s end)
-CreateToggle(TabSys, "God Mode", "Kebal Lava (Roslit)", false, function(s) CONFIG.IsGodMode = s end)
-CreateToggle(TabSys, "Anti-AFK", "Bypass Idle Kick", true, function(s) CONFIG.IsAntiAFK = s end)
-CreateToggle(TabSys, "Anti-Admin", "Auto Kick jika Staff join", true, function(s) CONFIG.IsBypass = s end)
-
--- TAB 8: INFO
+-- Tab 8: Info
 local TabInfo = CreateTab("Info")
-local execName = "Unknown" if identifyexecutor then execName = identifyexecutor() end
-local gameName = "Unknown" pcall(function() gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name end)
 CreateInfo(TabInfo, "Owner:", "ZAYANGGGGG")
 CreateInfo(TabInfo, "UID:", "1398015808")
 CreateInfo(TabInfo, "Web:", "www.YuuVins.online")
-CreateInfo(TabInfo, "Status:", "PREMIUM ACTIVE PERMANEN")
-CreateInfo(TabInfo, "Executor:", execName)
+CreateInfo(TabInfo, "Status:", "PREMIUM ACTIVE")
+CreateInfo(TabInfo, "Version:", "V9.5 Optimized")
 
 -- =============================================================
--- 4. LOGIC ENGINE
+-- 6. OPTIMIZED LOGIC ENGINE
 -- =============================================================
 
--- [[ INFINITE JUMP ]]
-UserInputService.JumpRequest:Connect(function()
-    if CONFIG.IsInfJump and LocalPlayer.Character then
-        local Hum = LocalPlayer.Character:FindFirstChild("Humanoid")
-        if Hum then Hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+-- [[ TELEPORT ]]
+function TweenTP(cframe)
+    local char = LocalPlayer.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+    local root = char.HumanoidRootPart
+    
+    -- Auto God Mode Logic
+    if CONFIG.IsGodMode then
+        local h = char:FindFirstChild("Humanoid")
+        if h then h:SetStateEnabled(Enum.HumanoidStateType.Dead, false) end
     end
-end)
 
--- Fullbright
-if CONFIG.IsFullBright then
-    Lighting.ClockTime = 12
-    Lighting.Brightness = 2
-    Lighting.GlobalShadows = false
+    local dist = (root.Position - cframe.Position).Magnitude
+    local time = dist / CONFIG.FlySpeed
+    local tween = TweenService:Create(root, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = cframe})
+    
+    local conn = RunService.Stepped:Connect(function()
+        for _, v in pairs(char:GetChildren()) do if v:IsA("BasePart") then v.CanCollide = false end end
+    end)
+    tween:Play()
+    tween.Completed:Wait()
+    conn:Disconnect()
+    
+    root.Anchored = true
+    task.wait(0.5)
+    root.Anchored = false
 end
 
 -- [[ AUTO FISH V3 ]]
@@ -573,6 +542,28 @@ task.spawn(function()
     end
 end)
 
+-- [[ OPTIMIZED VISUALS (CACHE SYSTEM) ]]
+local VisualCache = {}
+-- Update Cache every 3 seconds (Fix Lag)
+task.spawn(function()
+    while true do
+        table.clear(VisualCache)
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("Model") and v:FindFirstChild("Humanoid") then
+                if CONFIG.IsVision and (string.find(v.Name, "Merchant") or string.find(v.Name, "Orc")) then
+                    table.insert(VisualCache, {Obj=v, Type="NPC"})
+                end
+            end
+        end
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer and p.Character then
+                table.insert(VisualCache, {Obj=p.Character, Type="Player", Plr=p})
+            end
+        end
+        task.wait(3)
+    end
+end)
+
 -- [[ VISUALS: ESP & VISION ]]
 RunService.RenderStepped:Connect(function()
     for _, v in pairs(workspace:GetDescendants()) do
@@ -602,39 +593,20 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- [[ NOCLIP ]]
-RunService.Stepped:Connect(function()
-    if CONFIG.IsNoClip and LocalPlayer.Character then
-        for _, v in pairs(LocalPlayer.Character:GetChildren()) do
-            if v:IsA("BasePart") then v.CanCollide = false end
-        end
+-- [[ INFINITE JUMP ]]
+UserInputService.JumpRequest:Connect(function()
+    if CONFIG.IsInfJump and LocalPlayer.Character then
+        local Hum = LocalPlayer.Character:FindFirstChild("Humanoid")
+        if Hum then Hum:ChangeState(Enum.HumanoidStateType.Jumping) end
     end
 end)
 
-    -- GOD MODE LOGIC
-    if CONFIG.IsGodMode then
-        local hum = char:FindFirstChild("Humanoid")
-        if hum then hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false) end
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v.Name == "Lava" and v:IsA("BasePart") then
-                v.CanTouch = false 
-                v.CanCollide = true
-            end
-        end
-    end
-    
-    local dist = (root.Position - cframe.Position).Magnitude
-    local time = dist / CONFIG.FlySpeed
-    
-    local ti = TweenInfo.new(time, Enum.EasingStyle.Linear)
-    local tween = TweenService:Create(root, ti, {CFrame = cframe})
-    
-    local conn
-    conn = RunService.Stepped:Connect(function()
-        for _, v in pairs(char:GetChildren()) do
-            if v:IsA("BasePart") then v.CanCollide = false end
-        end
-    end)
+-- Fullbright
+if CONFIG.IsFullBright then
+    Lighting.ClockTime = 12
+    Lighting.Brightness = 2
+    Lighting.GlobalShadows = false
+end
 
 -- [[ BOOT ]]
 task.spawn(function()
