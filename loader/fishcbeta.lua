@@ -1,9 +1,3 @@
--- =============================================================
--- YuuVins Exploids // ULTIMATE PREMIUM V6.5
--- Owner: ZAYANGGGGG
--- Theme: Alchemy Blue Glow (Neon)
--- =============================================================
-
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -555,3 +549,4 @@ task.spawn(function()
     MainFrame.Size = UDim2.new(0, 0, 0, 0)
     TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 350)}):Play()
 end)
+
