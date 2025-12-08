@@ -1,7 +1,7 @@
 -- =============================================================
--- YuuVins Exploids // ULTIMATE V7.5 (ROD GUIDES)
+-- YuuVins Exploids // ULTIMATE V7.7 (GOD MODE)
 -- Owner: ZAYANGGGGG
--- Status: SAFE TELEPORT + ROD GUIDES + PRICE INFO
+-- Status: ANTI-LAVA + SAFE MAGMA ROD QUEST
 -- =============================================================
 
 local Players = game:GetService("Players")
@@ -24,6 +24,7 @@ local CONFIG = {
     IsAntiAFK = false,
     IsBypass = true,
     IsAFKLevel = false,
+    IsGodMode = false, -- Anti Lava
     
     SavedPosition = nil,
     FlySpeed = 300,
@@ -62,7 +63,7 @@ end
 task.spawn(function()
     StarterGui:SetCore("SendNotification", {
         Title = "YuuVins Exploids",
-        Text = "Updating Rod Coordinates...",
+        Text = "Injecting Anti-Lava Module...",
         Duration = 2.5,
         Icon = "rbxassetid://16369066601"
     })
@@ -184,7 +185,7 @@ Content.BackgroundTransparency = 1
 local CurrentPage = nil
 function CreateTab(text)
     local Btn = Instance.new("TextButton", Sidebar)
-    Btn.Size = UDim2.new(1, -10, 0, 35)
+    Btn.Size = UDim2.new(1, -20, 0, 40)
     Btn.BackgroundColor3 = THEME.Bg
     Btn.BackgroundTransparency = 1
     Btn.Text = "  " .. text
@@ -310,12 +311,20 @@ function CreateInfo(parent, label, value)
 end
 
 -- =============================================================
--- 3. TELEPORT LOGIC (CORE)
+-- 3. TELEPORT LOGIC (CORE + ANTI-VOID)
 -- =============================================================
 local function TweenTP(cframe)
     local char = LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     local root = char.HumanoidRootPart
+    
+    -- GOD MODE ACTIVATION (If enabled)
+    if CONFIG.IsGodMode then
+        local humanoid = char:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false) -- Disable Death
+        end
+    end
     
     local dist = (root.Position - cframe.Position).Magnitude
     local time = dist / CONFIG.FlySpeed
@@ -333,6 +342,10 @@ local function TweenTP(cframe)
     tween:Play()
     tween.Completed:Wait()
     if conn then conn:Disconnect() end
+    
+    root.Anchored = true
+    task.wait(1)
+    root.Anchored = false
 end
 
 local function TP_To_Position(pos)
@@ -340,7 +353,7 @@ local function TP_To_Position(pos)
 end
 
 -- =============================================================
--- 4. MENU CONTENT (UPDATED)
+-- 4. MENU CONTENT
 -- =============================================================
 
 -- TAB 1: AUTO MANCING
@@ -355,7 +368,7 @@ end)
 local Tab2 = CreateTab("Auto Sell")
 CreateToggle(Tab2, "Teleport ke Merchant", "ON: Ke Merchant Terdekat | OFF: Balik", false, function(s) CONFIG.IsAutoSell = s end)
 
--- TAB 3: PULAU (ISLANDS)
+-- TAB 3: PULAU (SAFE DOCK POSITIONS)
 local TabIsland = CreateTab("Pulau & Zone")
 local IslandMap = {
     ["Moosewood Dock"] = Vector3.new(380, 135, 230),
@@ -373,46 +386,55 @@ for name, pos in pairs(IslandMap) do
     CreateButton(TabIsland, "TP: " .. name, function() TweenTP(CFrame.new(pos)) end)
 end
 
--- TAB 4: SECRET RODS (WITH GUIDE)
+-- TAB 4: SECRET RODS (WITH GUIDE & ANTI-LAVA)
 local TabRod = CreateTab("Secret Rods")
-
--- Data Table Rods (Posisi, Harga, Guide)
-local RodData = {
-    {Name = "Lost Rod", Pos = Vector3.new(2650, 140, 2450), Price = "2,000 C$", Guide = "Masuk gua di tebing bawah Snowcap."},
-    {Name = "Kings Rod", Pos = Vector3.new(30, 135, -1020), Price = "120,000 C$", Guide = "Bayar 400C$ ke Cole, turun lift ke Altar."},
-    {Name = "Destiny Rod", Pos = Vector3.new(980, 150, -1240), Price = "190,000 C$", Guide = "Lengkapi 70% Bestiary."},
-    {Name = "Magma Rod", Pos = Vector3.new(-1830, 165, 160), Price = "15,000 C$", Guide = "Bawa Pufferfish ke Orc di dalam Volcano."},
-    {Name = "Fungal Rod", Pos = Vector3.new(2550, 135, -730), Price = "Quest", Guide = "Tangkap Alligator (Malam/Foggy/Hujan)."},
-    {Name = "Forgotten Fang", Pos = Vector3.new(-3150, 135, 2600), Price = "Crafting", Guide = "Belakang air terjun Ancient Isle."},
-    {Name = "Trident Rod", Pos = Vector3.new(-970, 135, 1330), Price = "Quest", Guide = "Buka gerbang Desolate Deep (5 Relics)."},
-    {Name = "Aurora Rod", Pos = Vector3.new(-100, 135, 1000), Price = "90,000 C$", Guide = "Hanya muncul saat Event Aurora."},
-    {Name = "Scurvy Rod", Pos = Vector3.new(-2550, 135, 1630), Price = "50,000 C$", Guide = "Masuk gua Bajak Laut di Forsaken."}
+local RodMap = {
+    ["Snowcap: Lost Rod"] = {Pos=Vector3.new(2650, 140, 2450), Price="2,000 C$", Guide="Masuk gua di tebing bawah Snowcap."},
+    ["Statue: Kings Rod"] = {Pos=Vector3.new(30, 135, -1020), Price="120,000 C$", Guide="Bayar 400C$ ke Cole, turun lift ke Altar."},
+    ["Arch: Destiny Rod"] = {Pos=Vector3.new(980, 150, -1240), Price="190,000 C$", Guide="Lengkapi 70% Bestiary."},
+    ["Roslit: Magma Rod"] = {Pos=Vector3.new(-1830, 165, 160), Price="15,000 C$", Guide="Bawa Pufferfish ke Orc. (GOD MODE ACTIVE)"}, -- Magma
+    ["Swamp: Fungal Rod"] = {Pos=Vector3.new(2550, 135, -730), Price="Quest", Guide="Tangkap Alligator (Malam/Foggy/Hujan)."},
+    ["Ancient: Forgotten Fang"] = {Pos=Vector3.new(-3150, 135, 2600), Price="Crafting", Guide="Belakang air terjun Ancient Isle."},
+    ["Deep: Trident Rod"] = {Pos=Vector3.new(-970, 135, 1330), Price="Quest", Guide="Buka gerbang Desolate Deep (5 Relics)."},
+    ["Vertigo: Aurora Rod"] = {Pos=Vector3.new(-100, 135, 1000), Price="90,000 C$", Guide="Hanya muncul saat Event Aurora."},
+    ["Forsaken: Scurvy Rod"] = {Pos=Vector3.new(-2550, 135, 1630), Price="50,000 C$", Guide="Masuk gua Bajak Laut di Forsaken."}
 }
 
-for _, rod in ipairs(RodData) do
-    CreateButton(TabRod, "TP: " .. rod.Name, function()
-        -- 1. Teleport
-        TweenTP(CFrame.new(rod.Pos))
+for name, data in pairs(RodMap) do
+    CreateButton(TabRod, "TP: " .. name, function()
+        -- Auto Activate God Mode jika Magma Rod
+        if string.find(name, "Magma") then
+            CONFIG.IsGodMode = true
+            StarterGui:SetCore("SendNotification", {Title="GOD MODE ON", Text="Anti-Lava Activated!", Duration=3})
+        else
+            CONFIG.IsGodMode = false -- Matikan jika bukan magma
+        end
         
-        -- 2. Show Guide Notification
-        StarterGui:SetCore("SendNotification", {
-            Title = rod.Name,
-            Text = "Price: " .. rod.Price .. "\nStep: " .. rod.Guide,
-            Duration = 10, -- Lama bacanya
-        })
+        TweenTP(CFrame.new(data.Pos))
+        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
     end)
 end
 
--- TAB 5: SPECIAL RODS
+-- TAB 5: SPECIAL RODS (FIXED BRICK QUEST)
 local TabSpecial = CreateTab("Special Rods")
 CreateButton(TabSpecial, "[AUTO] Quest Brick Rod", function()
-    local locs = {Vector3.new(-1480, 132, 720), Vector3.new(-3150, 140, 2600), Vector3.new(-970, 132, 1330)}
-    for i, v in ipairs(locs) do
-        StarterGui:SetCore("SendNotification", {Title="Brick Quest", Text="Moving to Brick " .. i, Duration=2})
-        TweenTP(CFrame.new(v))
-        task.wait(3) -- Delay biar gak instan (suspicious)
+    local locs = {
+        {Name="Brick 1 (Roslit)", Pos=Vector3.new(-1480, 135, 720)}, 
+        {Name="Brick 2 (Ancient)", Pos=Vector3.new(-3150, 140, 2600)},
+        {Name="Brick 3 (Deep Entrance)", Pos=Vector3.new(-970, 135, 1330)},
+        {Name="Claim NPC (Tree)", Pos=Vector3.new(450, 150, 230)}
+    }
+    
+    for _, loc in ipairs(locs) do
+        StarterGui:SetCore("SendNotification", {Title="Brick Quest", Text="Going to: " .. loc.Name, Duration=3})
+        TweenTP(CFrame.new(loc.Pos))
+        task.wait(1) 
+        StarterGui:SetCore("SendNotification", {Title="Action", Text="Look for White Lego Brick!", Duration=5})
+        task.wait(6) 
     end
+    StarterGui:SetCore("SendNotification", {Title="Quest Done", Text="Check your inventory!", Duration=5})
 end)
+
 CreateButton(TabSpecial, "[AUTO] Find Midas Merchant", function()
     local ship = nil
     for _, v in pairs(workspace:GetDescendants()) do
@@ -428,6 +450,7 @@ end)
 
 -- TAB 6: SYSTEM
 local Tab3 = CreateTab("System")
+CreateToggle(Tab3, "God Mode (Anti-Lava)", "Kebal Lava di Roslit", false, function(s) CONFIG.IsGodMode = s end)
 CreateToggle(Tab3, "ESP Player", "Wallhack Biru Neon", false, function(s) CONFIG.IsESP = s end)
 CreateToggle(Tab3, "Anti-AFK 24H", "Bypass Idle Kick", false, function(s) CONFIG.IsAntiAFK = s end)
 CreateToggle(Tab3, "Bypass Anti-Admin", "Auto kick jika Staff join", true, function(s) CONFIG.IsBypass = s end)
@@ -452,6 +475,29 @@ CreateInfo(Tab4, "Game:", gameName)
 -- 5. LOGIC ENGINE
 -- =============================================================
 
+-- [[ GOD MODE LOOP ]]
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if CONFIG.IsGodMode and LocalPlayer.Character then
+            local Hum = LocalPlayer.Character:FindFirstChild("Humanoid")
+            if Hum then
+                -- Disable Death State (Character cannot die)
+                Hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+                -- Force Health (Optional safety)
+                if Hum.Health < 100 then Hum.Health = 100 end
+            end
+            
+            -- Remove Lava TouchInterest (Advanced Bypass)
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v.Name == "Lava" and v:IsA("BasePart") then
+                    v.CanTouch = false -- Lava tidak bisa disentuh
+                end
+            end
+        end
+    end
+end)
+
 -- [[ AUTO FISH V3: HOLD & RELEASE ]]
 task.spawn(function()
     while true do
@@ -460,14 +506,11 @@ task.spawn(function()
             local Char = LocalPlayer.Character
             if Char then
                 local Tool = Char:FindFirstChildOfClass("Tool")
-                -- Jika belum melempar (tidak ada bobber)
                 if Tool and not Tool:FindFirstChild("bobber") then
-                    -- 1. Hold Click (Charge Power)
-                    local ChargeTime = math.random(15, 20) / 10 -- 1.5s - 2.0s random delay
                     VirtualInputManager:SendMouseButtonEvent(0,0,0, true, game, 1)
-                    task.wait(ChargeTime) 
-                    VirtualInputManager:SendMouseButtonEvent(0,0,0, false, game, 1) -- Lepas
-                    task.wait(2.0) -- Tunggu animasi lempar
+                    task.wait(1.0) 
+                    VirtualInputManager:SendMouseButtonEvent(0,0,0, false, game, 1) 
+                    task.wait(1.5)
                 end
             end
         end
@@ -479,7 +522,6 @@ RunService.Heartbeat:Connect(function()
     local GUI = LocalPlayer:FindFirstChild("PlayerGui")
     if not GUI then return end
 
-    -- 2. AUTO SHAKE
     local ShakeUI = GUI:FindFirstChild("shakeui")
     if ShakeUI and ShakeUI.Enabled then
         local Safe = ShakeUI:FindFirstChild("safezone")
@@ -491,16 +533,13 @@ RunService.Heartbeat:Connect(function()
         end
     end
 
-    -- 3. PERFECT REEL (FIXED AUTO JUMP)
     local ReelUI = GUI:FindFirstChild("reel")
     if ReelUI and ReelUI.Enabled then
         local Bar = ReelUI:FindFirstChild("bar")
         if Bar then
             local Fish = Bar:FindFirstChild("fish")
             local PlayerBar = Bar:FindFirstChild("playerbar")
-            
             if Fish and PlayerBar then
-                -- Logika Akurasi Tinggi
                 if Fish.Position.X.Scale > PlayerBar.Position.X.Scale then
                     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
                 elseif Fish.Position.X.Scale < PlayerBar.Position.X.Scale then
@@ -509,7 +548,6 @@ RunService.Heartbeat:Connect(function()
             end
         end
     else
-        -- [FIX] FORCE RELEASE SPACE
         VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
     end
 end)
@@ -519,10 +557,8 @@ local function FindNearestMerchant()
     local Char = LocalPlayer.Character
     if not Char then return nil end
     local Root = Char.HumanoidRootPart
-    
     local Nearest = nil
     local MinDist = math.huge
-    
     for _, v in pairs(workspace:GetDescendants()) do
         if v:IsA("Model") and (v.Name == "Merchant" or v.Name == "Marc Merchant") then
             if v:FindFirstChild("HumanoidRootPart") then
@@ -541,23 +577,18 @@ task.spawn(function()
     while true do
         task.wait(0.5)
         if CONFIG.IsAutoSell then
-            -- Save Posisi Awal
             if not CONFIG.SavedPosition and LocalPlayer.Character then
                 CONFIG.SavedPosition = LocalPlayer.Character.HumanoidRootPart.CFrame
             end
-            
             local Merch = FindNearestMerchant()
             if Merch and LocalPlayer.Character then
                 local Root = LocalPlayer.Character.HumanoidRootPart
                 local Dist = (Root.Position - Merch.HumanoidRootPart.Position).Magnitude
-                
-                -- Teleport hanya jika jauh (>10 studs)
                 if Dist > 10 then
                     TweenTP(Merch.HumanoidRootPart.CFrame * CFrame.new(0,0,3))
                 end
             end
         else
-            -- Balik ke Posisi Awal
             if CONFIG.SavedPosition and LocalPlayer.Character then
                 local Root = LocalPlayer.Character.HumanoidRootPart
                 local Dist = (Root.Position - CONFIG.SavedPosition.Position).Magnitude
@@ -582,13 +613,11 @@ RunService.RenderStepped:Connect(function()
                     H.OutlineColor = Color3.new(1,1,1)
                     H.FillTransparency = 0.6
                     H.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    
                     local B = Instance.new("BillboardGui", p.Character.HumanoidRootPart)
                     B.Name = "InfoESP"
                     B.Size = UDim2.new(0, 200, 0, 50)
                     B.StudsOffset = Vector3.new(0, 3.5, 0)
                     B.AlwaysOnTop = true
-                    
                     local T = Instance.new("TextLabel", B)
                     T.Size = UDim2.new(1,0,0.7,0)
                     T.BackgroundTransparency = 1
@@ -597,7 +626,6 @@ RunService.RenderStepped:Connect(function()
                     T.TextStrokeTransparency = 0
                     T.TextSize = 11
                 end
-                
                 local B = p.Character.HumanoidRootPart:FindFirstChild("InfoESP")
                 if B then
                     local Dist = math.floor((p.Character.HumanoidRootPart.Position - Camera.CFrame.Position).Magnitude)
