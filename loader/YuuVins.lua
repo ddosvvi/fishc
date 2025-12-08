@@ -1,7 +1,7 @@
 -- =============================================================
--- YuuVins Exploids // ULTIMATE V7.3 (FIX AUTO JUMP)
+-- YuuVins Exploids // ULTIMATE V7.3 (FIXED TELEPORT)
 -- Owner: ZAYANGGGGG
--- Status: BUG FIXED (No More Random Jumping)
+-- Status: SAFE DOCK TELEPORT (No Stuck/Water)
 -- =============================================================
 
 local Players = game:GetService("Players")
@@ -62,7 +62,7 @@ end
 task.spawn(function()
     StarterGui:SetCore("SendNotification", {
         Title = "YuuVins Exploids",
-        Text = "Fixing Auto Jump Bug...",
+        Text = "Calibrating Island Coordinates...",
         Duration = 2.5,
         Icon = "rbxassetid://16369066601"
     })
@@ -355,36 +355,36 @@ end)
 local Tab2 = CreateTab("Auto Sell")
 CreateToggle(Tab2, "Teleport ke Merchant", "ON: Ke Merchant Terdekat | OFF: Balik", false, function(s) CONFIG.IsAutoSell = s end)
 
--- TAB 3: PULAU (ISLANDS)
+-- TAB 3: PULAU (SAFE DOCK POSITIONS)
 local TabIsland = CreateTab("Pulau & Zone")
 local IslandMap = {
-    ["Moosewood"] = Vector3.new(380, 135, 230),
-    ["Roslit Bay"] = Vector3.new(-1480, 132, 720),
-    ["Terrapin Island"] = Vector3.new(-180, 135, 1950),
-    ["Snowcap Island"] = Vector3.new(2620, 135, 2400),
-    ["Sunstone Island"] = Vector3.new(-930, 132, -1120),
-    ["Mushgrove Swamp"] = Vector3.new(2450, 130, -700),
-    ["Forsaken Shores"] = Vector3.new(-2500, 132, 1550),
-    ["Ancient Isle"] = Vector3.new(-3150, -100, 2600),
+    ["Moosewood Dock"] = Vector3.new(380, 135, 230),
+    ["Roslit Bay Dock"] = Vector3.new(-1480, 132, 720),
+    ["Terrapin Island Dock"] = Vector3.new(-180, 135, 1950),
+    ["Snowcap Island Dock"] = Vector3.new(2620, 135, 2400),
+    ["Sunstone Island Beach"] = Vector3.new(-930, 132, -1120),
+    ["Mushgrove Swamp Dock"] = Vector3.new(2450, 130, -700),
+    ["Forsaken Shores Beach"] = Vector3.new(-2500, 132, 1550),
+    ["Ancient Isle Entrance"] = Vector3.new(-3150, 140, 2600), -- Fix Height
     ["Statue of Sovereignty"] = Vector3.new(30, 140, -1020),
-    ["The Arch"] = Vector3.new(980, 130, -1240)
+    ["The Arch Stone"] = Vector3.new(980, 130, -1240)
 }
 for name, pos in pairs(IslandMap) do
     CreateButton(TabIsland, "TP: " .. name, function() TweenTP(CFrame.new(pos)) end)
 end
 
--- TAB 4: SECRET RODS
+-- TAB 4: SECRET RODS (SAFE SPOTS)
 local TabRod = CreateTab("Secret Rods")
 local RodMap = {
-    ["Snowcap: Lost Rod"] = Vector3.new(2620, 100, 2400),
-    ["Statue: Kings Rod"] = Vector3.new(30, 100, -1020),
-    ["Arch: Destiny Rod"] = Vector3.new(980, 130, -1240),
-    ["Roslit: Magma Rod"] = Vector3.new(-1800, 140, 500),
-    ["Swamp: Fungal Rod"] = Vector3.new(2450, 130, -700),
-    ["Ancient: Forgotten Fang"] = Vector3.new(-3150, -100, 2600),
-    ["Deep: Trident & Depths"] = Vector3.new(-970, -260, 1330),
-    ["Vertigo: Aurora/Nocturnal"] = Vector3.new(-100, -500, 1000), 
-    ["Forsaken: Scurvy/Sunken"] = Vector3.new(-2500, 132, 1550)
+    ["Snowcap: Lost Rod (Cave Entrance)"] = Vector3.new(2620, 135, 2400),
+    ["Statue: Kings Rod (Mine Entrance)"] = Vector3.new(30, 140, -1020),
+    ["Arch: Destiny Rod (Top Rock)"] = Vector3.new(980, 150, -1240),
+    ["Roslit: Magma Rod (Volcano Mouth)"] = Vector3.new(-1800, 160, 500),
+    ["Swamp: Fungal Rod (Swamp Center)"] = Vector3.new(2450, 130, -700),
+    ["Ancient: Forgotten Fang (Waterfall)"] = Vector3.new(-3150, 135, 2600),
+    ["Deep: Trident & Depths (Buoy)"] = Vector3.new(-970, 132, 1330), -- Surface
+    ["Vertigo: Aurora/Nocturnal (Whirlpool)"] = Vector3.new(-100, 135, 1000), -- Surface
+    ["Forsaken: Scurvy/Sunken (Pirate Cave)"] = Vector3.new(-2500, 135, 1550)
 }
 for name, pos in pairs(RodMap) do
     CreateButton(TabRod, "TP: " .. name, function() TweenTP(CFrame.new(pos)) end)
@@ -393,11 +393,11 @@ end
 -- TAB 5: SPECIAL RODS
 local TabSpecial = CreateTab("Special Rods")
 CreateButton(TabSpecial, "[AUTO] Quest Brick Rod", function()
-    local locs = {Vector3.new(-1480, 132, 720), Vector3.new(-3150, -100, 2600), Vector3.new(-970, -260, 1330)}
+    local locs = {Vector3.new(-1480, 132, 720), Vector3.new(-3150, 140, 2600), Vector3.new(-970, 132, 1330)}
     for i, v in ipairs(locs) do
-        StarterGui:SetCore("SendNotification", {Title="Brick Quest", Text="Collecting Brick " .. i, Duration=2})
+        StarterGui:SetCore("SendNotification", {Title="Brick Quest", Text="Moving to Brick " .. i, Duration=2})
         TweenTP(CFrame.new(v))
-        task.wait(2)
+        task.wait(3) -- Delay biar gak instan (suspicious)
     end
 end)
 CreateButton(TabSpecial, "[AUTO] Find Midas Merchant", function()
@@ -439,7 +439,7 @@ CreateInfo(Tab4, "Game:", gameName)
 -- 5. LOGIC ENGINE
 -- =============================================================
 
--- [[ AUTO FISH V3: HOLD & RELEASE ]]
+-- [[ AUTO FISH V3: DELAYED CAST & PERFECT REEL ]]
 task.spawn(function()
     while true do
         task.wait(0.2)
@@ -450,10 +450,11 @@ task.spawn(function()
                 -- Jika belum melempar (tidak ada bobber)
                 if Tool and not Tool:FindFirstChild("bobber") then
                     -- 1. Hold Click (Charge Power)
+                    local ChargeTime = math.random(15, 20) / 10 -- 1.5s - 2.0s random delay
                     VirtualInputManager:SendMouseButtonEvent(0,0,0, true, game, 1)
-                    task.wait(1.0) -- Tahan 1 detik biar lempar jauh
+                    task.wait(ChargeTime) 
                     VirtualInputManager:SendMouseButtonEvent(0,0,0, false, game, 1) -- Lepas
-                    task.wait(1.5) -- Tunggu animasi
+                    task.wait(2.0) -- Tunggu animasi lempar
                 end
             end
         end
@@ -488,17 +489,14 @@ RunService.Heartbeat:Connect(function()
             if Fish and PlayerBar then
                 -- Logika Akurasi Tinggi
                 if Fish.Position.X.Scale > PlayerBar.Position.X.Scale then
-                    -- Ikan di kanan: Tahan Spasi
                     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
                 elseif Fish.Position.X.Scale < PlayerBar.Position.X.Scale then
-                    -- Ikan di kiri: Lepas Spasi (tap cepat biar gak jatuh drastis)
                     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
                 end
             end
         end
     else
-        -- [FIX] FORCE RELEASE SPACE WHEN REEL UI GONE
-        -- Ini mencegah karakter loncat setelah mancing selesai
+        -- [FIX] FORCE RELEASE SPACE
         VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
     end
 end)
@@ -530,7 +528,6 @@ task.spawn(function()
     while true do
         task.wait(0.5)
         if CONFIG.IsAutoSell then
-            -- Save Posisi Awal
             if not CONFIG.SavedPosition and LocalPlayer.Character then
                 CONFIG.SavedPosition = LocalPlayer.Character.HumanoidRootPart.CFrame
             end
@@ -540,13 +537,11 @@ task.spawn(function()
                 local Root = LocalPlayer.Character.HumanoidRootPart
                 local Dist = (Root.Position - Merch.HumanoidRootPart.Position).Magnitude
                 
-                -- Teleport hanya jika jauh (>10 studs)
                 if Dist > 10 then
                     TweenTP(Merch.HumanoidRootPart.CFrame * CFrame.new(0,0,3))
                 end
             end
         else
-            -- Balik ke Posisi Awal
             if CONFIG.SavedPosition and LocalPlayer.Character then
                 local Root = LocalPlayer.Character.HumanoidRootPart
                 local Dist = (Root.Position - CONFIG.SavedPosition.Position).Magnitude
