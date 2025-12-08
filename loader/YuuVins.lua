@@ -19,7 +19,7 @@ local CONFIG = {
     IsESP = false,
     IsVision = false,
     IsAntiAFK = true, -- AFK 24JAM
-    IsBypass = true, -- ANTI KICK SERVER
+    IsBypass = true, -- ANTI KICK SERVER ADMIN
     IsAFKLevel = false,
     IsGodMode = false,
     IsWaterWalk = false,
@@ -67,12 +67,12 @@ task.spawn(function()
         Title = "YuuVins Exploids",
         Text = "Injecting Visual Modules...",
         Duration = 2.5,
-        Icon = "rbxassetid://16369066601"
+        Icon = "rbxassetid://110623538266999"
     })
     task.wait(2.5)
     StarterGui:SetCore("SendNotification", {
-        Title = "WELCOME USER",
-        Text = "Owner: ZAYANGGGGG",
+        Title = "WELCOME USER PREMIUM",
+        Text = "Owner Xploid ZAYANGGGGG",
         Duration = 2.5,
     })
 end)
@@ -318,8 +318,11 @@ end
 
 -- TAB 1: AUTO MANCING
 local TabFish = CreateTab("Auto Mancing")
-CreateToggle(TabFish, "Auto Fish V3", "Auto Cast + Shake + Perfect Reel", false, function(s) CONFIG.IsAutoFish = s end)
-CreateToggle(TabFish, "AFK Level 500", "No-Life Mode (Auto Farm)", false, function(s) CONFIG.IsAFKLevel = s; CONFIG.IsAutoFish = s end)
+CreateToggle(TabFish, "Auto Fish V3", "Auto Click + Shake + Perfect Reel", false, function(s) CONFIG.IsAutoFish = s end)
+CreateToggle(TabFish, "AFK Level 500", "No-Life Rod Mode (Auto Farm)", false, function(s) CONFIG.IsAFKLevel = s; CONFIG.IsAutoFish = s 
+    CONFIG.IsAFKLevel = s 
+    CONFIG.IsAutoFish = s 
+end)
 
 -- TAB 2: AUTO SELL
 local TabSell = CreateTab("Auto Sell")
@@ -356,6 +359,69 @@ local RodMap = {
     ["Vertigo: Aurora Rod"] = {Pos=Vector3.new(-100, 135, 1000), Price="90,000 C$", Guide="Hanya muncul saat Event Aurora."},
     ["Forsaken: Scurvy Rod"] = {Pos=Vector3.new(-2550, 135, 1630), Price="50,000 C$", Guide="Masuk gua Bajak Laut di Forsaken."}
 }
+for name, data in pairs(RodMap) do
+    CreateButton(TabRod, "TP: " .. name, function()
+        if string.find(name, "Lost")
+        TweenTP(CFrame.new(data.Pos))
+        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
+    end)
+end
+
+for name, data in pairs(RodMap) do
+    CreateButton(TabRod, "TP: " .. name, function()
+        if string.find(name, "Kings")
+        TweenTP(CFrame.new(data.Pos))
+        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
+    end)
+end
+
+for name, data in pairs(RodMap) do
+    CreateButton(TabRod, "TP: " .. name, function()
+        if string.find(name, "Destiny")
+        TweenTP(CFrame.new(data.Pos))
+        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
+    end)
+end
+
+for name, data in pairs(RodMap) do
+    CreateButton(TabRod, "TP: " .. name, function()
+        if string.find(name, "Fungal")
+        TweenTP(CFrame.new(data.Pos))
+        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
+    end)
+end
+
+for name, data in pairs(RodMap) do
+    CreateButton(TabRod, "TP: " .. name, function()
+        if string.find(name, "Forgotten")
+        TweenTP(CFrame.new(data.Pos))
+        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
+    end)
+end
+
+for name, data in pairs(RodMap) do
+    CreateButton(TabRod, "TP: " .. name, function()
+        if string.find(name, "Trident")
+        TweenTP(CFrame.new(data.Pos))
+        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
+    end)
+end
+
+for name, data in pairs(RodMap) do
+    CreateButton(TabRod, "TP: " .. name, function()
+        if string.find(name, "Aurora")
+        TweenTP(CFrame.new(data.Pos))
+        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
+    end)
+end
+
+for name, data in pairs(RodMap) do
+    CreateButton(TabRod, "TP: " .. name, function()
+        if string.find(name, "Scurvy")
+        TweenTP(CFrame.new(data.Pos))
+        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
+    end)
+end
 
 for name, data in pairs(RodMap) do
     CreateButton(TabRod, "TP: " .. name, function()
@@ -461,7 +527,9 @@ local gameName = "Unknown" pcall(function() gameName = MarketplaceService:GetPro
 CreateInfo(TabInfo, "Owner:", "ZAYANGGGGG")
 CreateInfo(TabInfo, "UID:", "1398015808")
 CreateInfo(TabInfo, "Web:", "www.YuuVins.online")
-CreateInfo(TabInfo, "Ver:", "Ultimate V9")
+CreateInfo(TabInfo, "", "")
+CreateInfo(TabInfo, "Ver:", "V9.0.0")
+CreateInfo(TabInfo, "Status:", "PREMIUM ACTIVE PERMANEN")
 CreateInfo(TabInfo, "Executor:", execName)
 
 -- =============================================================
@@ -492,15 +560,16 @@ end)
 -- [[ AUTO FISH V3 ]]
 task.spawn(function()
     while true do
-        task.wait(0.1)
+        task.wait(0.2)
         if CONFIG.IsAutoFish then
             local Char = LocalPlayer.Character
             if Char then
                 local Tool = Char:FindFirstChildOfClass("Tool")
                 if Tool and not Tool:FindFirstChild("bobber") then
                     VirtualInputManager:SendMouseButtonEvent(0,0,0, true, game, 1)
-                    VirtualInputManager:SendMouseButtonEvent(0,0,0, false, game, 1)
-                    task.wait(1)
+                    task.wait(1.0) 
+                    VirtualInputManager:SendMouseButtonEvent(0,0,0, false, game, 1) 
+                    task.wait(1.5)
                 end
             end
         end
@@ -512,7 +581,6 @@ RunService.Heartbeat:Connect(function()
     local GUI = LocalPlayer:FindFirstChild("PlayerGui")
     if not GUI then return end
 
-    -- Shake
     local ShakeUI = GUI:FindFirstChild("shakeui")
     if ShakeUI and ShakeUI.Enabled then
         local Safe = ShakeUI:FindFirstChild("safezone")
@@ -524,7 +592,6 @@ RunService.Heartbeat:Connect(function()
         end
     end
 
-    -- Reel
     local ReelUI = GUI:FindFirstChild("reel")
     if ReelUI and ReelUI.Enabled then
         local Bar = ReelUI:FindFirstChild("bar")
@@ -534,11 +601,14 @@ RunService.Heartbeat:Connect(function()
             if Fish and PlayerBar then
                 if Fish.Position.X.Scale > PlayerBar.Position.X.Scale then
                     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
-                else
+                elseif Fish.Position.X.Scale < PlayerBar.Position.X.Scale then
                     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
                 end
             end
         end
+    else
+        -- [FIX] FORCE RELEASE SPACE
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
     end
 end)
 
@@ -632,25 +702,72 @@ local Plat = Instance.new("Part", workspace)
 Plat.Anchored = true; Plat.Transparency = 1; Plat.Size = Vector3.new(10,1,10); Plat.CanCollide = true
 RunService.Heartbeat:Connect(function()
 
-    if CONFIG.IsWaterWalk and LocalPlayer.Character then
-        local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if root then
-            local ray = workspace:Raycast(root.Position, Vector3.new(0,-15,0))
-            if ray and ray.Material == Enum.Material.Water then
-                Plat.Position = Vector3.new(root.Position.X, ray.Position.Y-0.5, root.Position.Z)
-            else
-                Plat.Position = Vector3.new(0,-1000,0)
+    -- WATER MODE LOGIC
+    if CONFIG.IsWaterWalk then
+        local hum = char:FindFirstChild("Humanoid")
+        if hum then hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false) end
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v.Name == "Water" and v:IsA("BasePart") then
+                v.CanTouch = false 
+                v.CanCollide = true
             end
         end
-    else
-        Plat.Position = Vector3.new(0,-1000,0)
     end
     
-    if CONFIG.IsGodMode and LocalPlayer.Character then
-        local h = LocalPlayer.Character:FindFirstChild("Humanoid")
-        if h then h:SetStateEnabled(Enum.HumanoidStateType.Dead, false) end
-        for _,v in pairs(workspace:GetDescendants()) do
-            if v.Name == "Lava" then v.CanTouch = false; v.CanCollide = true end
+    local dist = (root.Position - cframe.Position).Magnitude
+    local time = dist / CONFIG.FlySpeed
+    
+    local ti = TweenInfo.new(time, Enum.EasingStyle.Linear)
+    local tween = TweenService:Create(root, ti, {CFrame = cframe})
+    
+    local conn
+    conn = RunService.Stepped:Connect(function()
+        for _, v in pairs(char:GetChildren()) do
+            if v:IsA("BasePart") then v.CanCollide = false end
+        end
+    end)
+    
+    -- GOD MODE LOGIC
+    if CONFIG.IsGodMode then
+        local hum = char:FindFirstChild("Humanoid")
+        if hum then hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false) end
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v.Name == "Lava" and v:IsA("BasePart") then
+                v.CanTouch = false 
+                v.CanCollide = true
+            end
+        end
+    end
+    
+    local dist = (root.Position - cframe.Position).Magnitude
+    local time = dist / CONFIG.FlySpeed
+    
+    local ti = TweenInfo.new(time, Enum.EasingStyle.Linear)
+    local tween = TweenService:Create(root, ti, {CFrame = cframe})
+    
+    local conn
+    conn = RunService.Stepped:Connect(function()
+        for _, v in pairs(char:GetChildren()) do
+            if v:IsA("BasePart") then v.CanCollide = false end
+        end
+    end)
+)
+
+-- Anti Admin
+task.spawn(function()
+    while true do
+        task.wait(5)
+        if CONFIG.IsBypass then
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer then
+                    local s, r = pcall(function() return p:GetRoleInGroup(CONFIG.TargetGroupId) end)
+                    if s and r then
+                        for _, bad in ipairs(CONFIG.Blacklist) do
+                            if r == bad then LocalPlayer:Kick("YuuVins Security: Staff Detected.") end
+                        end
+                    end
+                end
+            end
         end
     end
 end)
