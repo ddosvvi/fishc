@@ -1,7 +1,7 @@
 -- =============================================================
--- YuuVins Exploids // ULTIMATE V7.8 (ROD QUEST FIX)
+-- YuuVins Exploids // ULTIMATE V7.9 (EVENT + VISION)
 -- Owner: ZAYANGGGGG
--- Status: ALL RODS GUIDED + MAGMA GOD MODE + BRICK FIX
+-- Status: ALL FEATURES UNLOCKED + PREMIUM NOTIFS
 -- =============================================================
 
 local Players = game:GetService("Players")
@@ -14,6 +14,7 @@ local StarterGui = game:GetService("StarterGui")
 local GuiService = game:GetService("GuiService")
 local CoreGui = game:GetService("CoreGui")
 local MarketplaceService = game:GetService("MarketplaceService")
+local Lighting = game:GetService("Lighting")
 local Camera = workspace.CurrentCamera
 
 -- [[ KONFIGURASI GLOBAL ]]
@@ -21,10 +22,13 @@ local CONFIG = {
     IsAutoFish = false,
     IsAutoSell = false,
     IsESP = false,
+    IsNPC_ESP = false, -- Night Vision NPC Rod
     IsAntiAFK = false,
     IsBypass = true,
     IsAFKLevel = false,
-    IsGodMode = false, -- Anti Lava
+    IsGodMode = false,
+    IsNoClip = false,  -- Smart NoClip
+    IsWaterWalk = false, -- Walk on Water
     
     SavedPosition = nil,
     FlySpeed = 300,
@@ -41,7 +45,8 @@ local THEME = {
     Accent = Color3.fromRGB(0, 230, 255),
     Glow1 = Color3.fromRGB(0, 180, 255),
     Glow2 = Color3.fromRGB(0, 80, 200),
-    ESP_Color = Color3.fromRGB(0, 255, 255)
+    ESP_Color = Color3.fromRGB(0, 255, 255),
+    NPC_Color = Color3.fromRGB(255, 215, 0) -- Gold for NPC
 }
 
 -- [[ GET SAFE GUI ]]
@@ -58,21 +63,21 @@ for _, v in pairs(UI_Parent:GetChildren()) do
 end
 
 -- =============================================================
--- 1. NOTIFIKASI SYSTEM
+-- 1. NOTIFIKASI SYSTEM (PREMIUM)
 -- =============================================================
-task.spawn(function()
+local function SendNotif(title, text, dur)
     StarterGui:SetCore("SendNotification", {
-        Title = "YuuVins Exploids",
-        Text = "Updating Quest Logic...",
-        Duration = 2.5,
+        Title = title,
+        Text = text,
+        Duration = dur or 3,
         Icon = "rbxassetid://16369066601"
     })
-    task.wait(2.5)
-    StarterGui:SetCore("SendNotification", {
-        Title = "WELCOME USER",
-        Text = "Owner: ZAYANGGGGG",
-        Duration = 2.5,
-    })
+end
+
+task.spawn(function()
+    SendNotif("YuuVins Exploids", "Injecting Event Module...", 2)
+    task.wait(2)
+    SendNotif("WELCOME USER", "Owner: ZAYANGGGGG", 3)
 end)
 
 -- =============================================================
@@ -185,7 +190,7 @@ Content.BackgroundTransparency = 1
 local CurrentPage = nil
 function CreateTab(text)
     local Btn = Instance.new("TextButton", Sidebar)
-    Btn.Size = UDim2.new(1, -20, 0, 40)
+    Btn.Size = UDim2.new(1, -10, 0, 35)
     Btn.BackgroundColor3 = THEME.Bg
     Btn.BackgroundTransparency = 1
     Btn.Text = "  " .. text
@@ -267,6 +272,11 @@ function CreateToggle(parent, title, desc, default, callback)
     TBtn.MouseButton1Click:Connect(function()
         default = not default
         TBtn.BackgroundColor3 = default and THEME.Accent or Color3.fromRGB(50,50,60)
+        
+        -- PREMIUM NOTIF
+        local status = default and "ON" or "OFF"
+        SendNotif("System Update", title .. ": " .. status, 1)
+        
         callback(default)
     end)
 end
@@ -288,7 +298,6 @@ function CreateInfo(parent, label, value)
     Frame.Size = UDim2.new(1, -5, 0, 30)
     Frame.BackgroundColor3 = THEME.Item
     Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
-    
     local L = Instance.new("TextLabel", Frame)
     L.Size = UDim2.new(0.4, 0, 1, 0)
     L.Position = UDim2.new(0, 10, 0, 0)
@@ -298,7 +307,6 @@ function CreateInfo(parent, label, value)
     L.Font = Enum.Font.Gotham
     L.TextSize = 12
     L.TextXAlignment = Enum.TextXAlignment.Left
-    
     local V = Instance.new("TextLabel", Frame)
     V.Size = UDim2.new(0.6, -20, 1, 0)
     V.Position = UDim2.new(0.4, 0, 0, 0)
@@ -311,23 +319,21 @@ function CreateInfo(parent, label, value)
 end
 
 -- =============================================================
--- 3. TELEPORT LOGIC (CORE + ANTI-VOID)
+-- 3. TELEPORT LOGIC
 -- =============================================================
 local function TweenTP(cframe)
     local char = LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     local root = char.HumanoidRootPart
     
-    -- GOD MODE LOGIC (AUTO LAVA WALK)
+    -- GOD MODE LOGIC
     if CONFIG.IsGodMode then
         local hum = char:FindFirstChild("Humanoid")
         if hum then hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false) end
-        
-        -- Bikin Lava Jadi Lantai Aman
         for _, v in pairs(workspace:GetDescendants()) do
             if v.Name == "Lava" and v:IsA("BasePart") then
                 v.CanTouch = false 
-                v.CanCollide = true -- Bisa diinjak
+                v.CanCollide = true
             end
         end
     end
@@ -370,7 +376,7 @@ end)
 local Tab2 = CreateTab("Auto Sell")
 CreateToggle(Tab2, "Teleport ke Merchant", "ON: Ke Merchant Terdekat | OFF: Balik", false, function(s) CONFIG.IsAutoSell = s end)
 
--- TAB 3: PULAU (SAFE DOCK POSITIONS)
+-- TAB 3: PULAU
 local TabIsland = CreateTab("Pulau & Zone")
 local IslandMap = {
     ["Moosewood Dock"] = Vector3.new(380, 135, 230),
@@ -388,42 +394,28 @@ for name, pos in pairs(IslandMap) do
     CreateButton(TabIsland, "TP: " .. name, function() TweenTP(CFrame.new(pos)) end)
 end
 
--- TAB 4: SECRET RODS (FULL GUIDE & AUTO CONFIG)
+-- TAB 4: SECRET RODS
 local TabRod = CreateTab("Secret Rods")
 local RodMap = {
     ["Snowcap: Lost Rod"] = {Pos=Vector3.new(2650, 140, 2450), Price="2,000 C$", Guide="Masuk gua di tebing bawah Snowcap."},
     ["Statue: Kings Rod"] = {Pos=Vector3.new(30, 135, -1020), Price="120,000 C$", Guide="Bayar 400C$ ke Cole, turun lift ke Altar."},
     ["Arch: Destiny Rod"] = {Pos=Vector3.new(980, 150, -1240), Price="190,000 C$", Guide="Lengkapi 70% Bestiary."},
-    ["Roslit: Magma Rod"] = {Pos=Vector3.new(-1830, 165, 160), Price="15,000 C$", Guide="God Mode Aktif! Jalan di atas lava ke Orc."}, -- Magma
+    ["Roslit: Magma Rod"] = {Pos=Vector3.new(-1830, 165, 160), Price="15,000 C$", Guide="God Mode Aktif! Jalan di atas lava ke Orc."},
     ["Swamp: Fungal Rod"] = {Pos=Vector3.new(2550, 135, -730), Price="Quest", Guide="Tangkap Alligator (Malam/Foggy/Hujan)."},
     ["Ancient: Forgotten Fang"] = {Pos=Vector3.new(-3150, 135, 2600), Price="Crafting", Guide="Belakang air terjun Ancient Isle."},
     ["Deep: Trident Rod"] = {Pos=Vector3.new(-970, 135, 1330), Price="Quest", Guide="Buka gerbang Desolate Deep (5 Relics)."},
     ["Vertigo: Aurora Rod"] = {Pos=Vector3.new(-100, 135, 1000), Price="90,000 C$", Guide="Hanya muncul saat Event Aurora."},
     ["Forsaken: Scurvy Rod"] = {Pos=Vector3.new(-2550, 135, 1630), Price="50,000 C$", Guide="Masuk gua Bajak Laut di Forsaken."}
 }
-
 for name, data in pairs(RodMap) do
     CreateButton(TabRod, "TP: " .. name, function()
-        -- Auto Activate God Mode jika Magma Rod
-        if string.find(name, "Magma") then
-            CONFIG.IsGodMode = true
-            StarterGui:SetCore("SendNotification", {Title="ANTI-LAVA ON", Text="You can walk on lava now!", Duration=5})
-        else
-            CONFIG.IsGodMode = false 
-        end
-        
+        if string.find(name, "Magma") then CONFIG.IsGodMode = true else CONFIG.IsGodMode = false end
         TweenTP(CFrame.new(data.Pos))
-        
-        -- Tampilkan Info Detail
-        StarterGui:SetCore("SendNotification", {
-            Title = name,
-            Text = "Price: " .. data.Price .. "\nInfo: " .. data.Guide,
-            Duration = 15,
-        })
+        SendNotif(name, "Price: " .. data.Price .. "\n" .. data.Guide, 10)
     end)
 end
 
--- TAB 5: SPECIAL RODS (FIXED BRICK QUEST)
+-- TAB 5: SPECIAL RODS
 local TabSpecial = CreateTab("Special Rods")
 CreateButton(TabSpecial, "[AUTO] Quest Brick Rod", function()
     local locs = {
@@ -432,241 +424,158 @@ CreateButton(TabSpecial, "[AUTO] Quest Brick Rod", function()
         {Name="Brick 3 (Deep Entrance)", Pos=Vector3.new(-970, 135, 1330)},
         {Name="Claim NPC (Tree)", Pos=Vector3.new(450, 150, 230)}
     }
-    
     for _, loc in ipairs(locs) do
-        StarterGui:SetCore("SendNotification", {Title="Quest Progress", Text="Going to: " .. loc.Name, Duration=3})
+        SendNotif("Quest Progress", "Going to: " .. loc.Name, 3)
         TweenTP(CFrame.new(loc.Pos))
         task.wait(1) 
-        
         if loc.Name == "Claim NPC (Tree)" then
-            StarterGui:SetCore("SendNotification", {Title="FINISH!", Text="Talk to the NPC to get Brick Rod!", Duration=10})
+            SendNotif("FINISH!", "Talk to the NPC to get Brick Rod!", 10)
         else
-            StarterGui:SetCore("SendNotification", {Title="Action Required", Text="Look for White Lego Brick here!", Duration=5})
-            task.wait(6) -- Waktu untuk ambil
+            SendNotif("Action", "Look for White Lego Brick!", 5)
+            task.wait(6) 
         end
     end
 end)
 
-CreateButton(TabSpecial, "[AUTO] Find Midas Merchant", function()
-    local ship = nil
+-- TAB 6: EVENT (NEW)
+local TabEvent = CreateTab("Events")
+CreateButton(TabEvent, "[AUTO] Find Megalodon / Shark", function()
+    local target = nil
     for _, v in pairs(workspace:GetDescendants()) do
-        if v.Name == "Travelling Merchant" then ship = v break end
+        if v.Name == "Great White Shark" or v.Name == "Megalodon" then target = v break end
     end
-    if ship then
-        TweenTP(ship.PrimaryPart.CFrame * CFrame.new(0,10,0))
-        StarterGui:SetCore("SendNotification", {Title="Midas Found!", Text="Teleported.", Duration=3})
+    if target then
+        TweenTP(target.PrimaryPart.CFrame * CFrame.new(0,20,0))
+        SendNotif("Monster Found!", "Teleported above target.", 5)
     else
-        StarterGui:SetCore("SendNotification", {Title="Not Found", Text="Merchant kapal tidak ada di server.", Duration=3})
+        SendNotif("Scanner", "No Boss Spawned.", 3)
     end
 end)
 
--- TAB 6: SYSTEM
+-- TAB 7: SYSTEM
 local Tab3 = CreateTab("System")
-CreateToggle(Tab3, "God Mode (Anti-Lava)", "Kebal Lava di Roslit", false, function(s) CONFIG.IsGodMode = s end)
+CreateToggle(Tab3, "Smart NoClip", "Tembus Tembok, Lantai Aman", false, function(s) CONFIG.IsNoClip = s end)
+CreateToggle(Tab3, "Walk on Water", "Berjalan di atas air", false, function(s) CONFIG.IsWaterWalk = s end)
+CreateToggle(Tab3, "Night Vision (Rod NPC)", "ESP Khusus Penjual Rod", false, function(s) CONFIG.IsNPC_ESP = s end)
 CreateToggle(Tab3, "ESP Player", "Wallhack Biru Neon", false, function(s) CONFIG.IsESP = s end)
 CreateToggle(Tab3, "Anti-AFK 24H", "Bypass Idle Kick", false, function(s) CONFIG.IsAntiAFK = s end)
-CreateToggle(Tab3, "Bypass Anti-Admin", "Auto kick jika Staff join", true, function(s) CONFIG.IsBypass = s end)
+CreateToggle(Tab3, "God Mode (Anti-Lava)", "Kebal Lava Roslit", false, function(s) CONFIG.IsGodMode = s end)
 
--- TAB 7: INFO
+-- TAB 8: INFO
 local Tab4 = CreateTab("Info")
-local execName = "Unknown"
-if identifyexecutor then execName = identifyexecutor() end
-local gameName = "Unknown"
-pcall(function() gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name end)
-
+local execName = "Unknown" if identifyexecutor then execName = identifyexecutor() end
+local gameName = "Unknown" pcall(function() gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name end)
 CreateInfo(Tab4, "Owner:", "ZAYANGGGGG")
 CreateInfo(Tab4, "Owner ID:", "1398015808")
 CreateInfo(Tab4, "Website:", "www.YuuVins.online")
-CreateInfo(Tab4, "Status:", "PREMIUM ACTIVE")
-CreateInfo(Tab4, "----------------", "----------------")
-CreateInfo(Tab4, "Current Player:", LocalPlayer.DisplayName)
 CreateInfo(Tab4, "Executor:", execName)
-CreateInfo(Tab4, "Game:", gameName)
 
 -- =============================================================
 -- 5. LOGIC ENGINE
 -- =============================================================
 
--- [[ GOD MODE LOOP ]]
-task.spawn(function()
-    while true do
-        task.wait(0.5)
-        if CONFIG.IsGodMode and LocalPlayer.Character then
-            local Hum = LocalPlayer.Character:FindFirstChild("Humanoid")
-            if Hum then
-                -- Disable Death State (Character cannot die)
-                Hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
-                -- Force Health (Optional safety)
-                if Hum.Health < 100 then Hum.Health = 100 end
-            end
-            
-            -- Remove Lava TouchInterest (Advanced Bypass)
-            for _, v in pairs(workspace:GetDescendants()) do
-                if v.Name == "Lava" and v:IsA("BasePart") then
-                    v.CanTouch = false -- Lava tidak bisa disentuh
-                    v.CanCollide = true -- Lava jadi lantai padat
-                end
-            end
-        end
-    end
-end)
-
--- [[ AUTO FISH V3: HOLD & RELEASE ]]
+-- [[ AUTO FISH V3 ]]
 task.spawn(function()
     while true do
         task.wait(0.2)
-        if CONFIG.IsAutoFish then
-            local Char = LocalPlayer.Character
-            if Char then
-                local Tool = Char:FindFirstChildOfClass("Tool")
-                if Tool and not Tool:FindFirstChild("bobber") then
-                    VirtualInputManager:SendMouseButtonEvent(0,0,0, true, game, 1)
-                    task.wait(1.0) 
-                    VirtualInputManager:SendMouseButtonEvent(0,0,0, false, game, 1) 
-                    task.wait(1.5)
-                end
+        if CONFIG.IsAutoFish and LocalPlayer.Character then
+            local Tool = LocalPlayer.Character:FindFirstChildOfClass("Tool")
+            if Tool and not Tool:FindFirstChild("bobber") then
+                VirtualInputManager:SendMouseButtonEvent(0,0,0, true, game, 1)
+                task.wait(1.0) 
+                VirtualInputManager:SendMouseButtonEvent(0,0,0, false, game, 1) 
+                task.wait(1.5)
             end
         end
     end
 end)
 
 RunService.Heartbeat:Connect(function()
-    if not CONFIG.IsAutoFish then return end
-    local GUI = LocalPlayer:FindFirstChild("PlayerGui")
-    if not GUI then return end
-
-    local ShakeUI = GUI:FindFirstChild("shakeui")
-    if ShakeUI and ShakeUI.Enabled then
-        local Safe = ShakeUI:FindFirstChild("safezone")
-        local Btn = Safe and Safe:FindFirstChild("button")
-        if Btn and Btn.Visible then
-            GuiService.SelectedObject = Btn
-            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
-            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-        end
-    end
-
-    local ReelUI = GUI:FindFirstChild("reel")
-    if ReelUI and ReelUI.Enabled then
-        local Bar = ReelUI:FindFirstChild("bar")
-        if Bar then
-            local Fish = Bar:FindFirstChild("fish")
-            local PlayerBar = Bar:FindFirstChild("playerbar")
-            if Fish and PlayerBar then
-                if Fish.Position.X.Scale > PlayerBar.Position.X.Scale then
-                    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
-                elseif Fish.Position.X.Scale < PlayerBar.Position.X.Scale then
-                    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+    if CONFIG.IsAutoFish then
+        local GUI = LocalPlayer:FindFirstChild("PlayerGui")
+        if GUI then
+            -- Shake
+            local ShakeUI = GUI:FindFirstChild("shakeui")
+            if ShakeUI and ShakeUI.Enabled then
+                local Btn = ShakeUI:FindFirstChild("safezone") and ShakeUI.safezone:FindFirstChild("button")
+                if Btn and Btn.Visible then
+                    GuiService.SelectedObject = Btn
+                    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+                    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, game)
                 end
             end
-        end
-    else
-        -- [FIX] FORCE RELEASE SPACE
-        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
-    end
-end)
-
--- [[ SMART AUTO SELL: NEAREST MERCHANT ]]
-local function FindNearestMerchant()
-    local Char = LocalPlayer.Character
-    if not Char then return nil end
-    local Root = Char.HumanoidRootPart
-    local Nearest = nil
-    local MinDist = math.huge
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("Model") and (v.Name == "Merchant" or v.Name == "Marc Merchant") then
-            if v:FindFirstChild("HumanoidRootPart") then
-                local Dist = (Root.Position - v.HumanoidRootPart.Position).Magnitude
-                if Dist < MinDist then
-                    MinDist = Dist
-                    Nearest = v
-                end
-            end
-        end
-    end
-    return Nearest
-end
-
-task.spawn(function()
-    while true do
-        task.wait(0.5)
-        if CONFIG.IsAutoSell then
-            if not CONFIG.SavedPosition and LocalPlayer.Character then
-                CONFIG.SavedPosition = LocalPlayer.Character.HumanoidRootPart.CFrame
-            end
-            local Merch = FindNearestMerchant()
-            if Merch and LocalPlayer.Character then
-                local Root = LocalPlayer.Character.HumanoidRootPart
-                local Dist = (Root.Position - Merch.HumanoidRootPart.Position).Magnitude
-                if Dist > 10 then
-                    TweenTP(Merch.HumanoidRootPart.CFrame * CFrame.new(0,0,3))
-                end
-            end
-        else
-            if CONFIG.SavedPosition and LocalPlayer.Character then
-                local Root = LocalPlayer.Character.HumanoidRootPart
-                local Dist = (Root.Position - CONFIG.SavedPosition.Position).Magnitude
-                if Dist > 10 then
-                    TweenTP(CONFIG.SavedPosition)
-                    CONFIG.SavedPosition = nil
-                end
-            end
-        end
-    end
-end)
-
--- [[ SYSTEM: ESP & ADMIN ]]
-RunService.RenderStepped:Connect(function()
-    for _, p in pairs(Players:GetPlayers()) do
-        if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            if CONFIG.IsESP then
-                if not p.Character:FindFirstChild("YuuVinsESP") then
-                    local H = Instance.new("Highlight", p.Character)
-                    H.Name = "YuuVinsESP"
-                    H.FillColor = THEME.ESP_Color
-                    H.OutlineColor = Color3.new(1,1,1)
-                    H.FillTransparency = 0.6
-                    H.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                    local B = Instance.new("BillboardGui", p.Character.HumanoidRootPart)
-                    B.Name = "InfoESP"
-                    B.Size = UDim2.new(0, 200, 0, 50)
-                    B.StudsOffset = Vector3.new(0, 3.5, 0)
-                    B.AlwaysOnTop = true
-                    local T = Instance.new("TextLabel", B)
-                    T.Size = UDim2.new(1,0,0.7,0)
-                    T.BackgroundTransparency = 1
-                    T.TextColor3 = THEME.ESP_Color
-                    T.Font = Enum.Font.GothamBold
-                    T.TextStrokeTransparency = 0
-                    T.TextSize = 11
-                end
-                local B = p.Character.HumanoidRootPart:FindFirstChild("InfoESP")
-                if B then
-                    local Dist = math.floor((p.Character.HumanoidRootPart.Position - Camera.CFrame.Position).Magnitude)
-                    B.TextLabel.Text = string.format("%s\n[%d m]", p.DisplayName, Dist)
-                end
-            else
-                if p.Character:FindFirstChild("YuuVinsESP") then p.Character.YuuVinsESP:Destroy() end
-                if p.Character.HumanoidRootPart:FindFirstChild("InfoESP") then p.Character.HumanoidRootPart.InfoESP:Destroy() end
-            end
-        end
-    end
-end)
-
--- Anti Admin
-task.spawn(function()
-    while true do
-        task.wait(5)
-        if CONFIG.IsBypass then
-            for _, p in pairs(Players:GetPlayers()) do
-                if p ~= LocalPlayer then
-                    local s, r = pcall(function() return p:GetRoleInGroup(CONFIG.TargetGroupId) end)
-                    if s and r then
-                        for _, bad in ipairs(CONFIG.Blacklist) do
-                            if r == bad then LocalPlayer:Kick("YuuVins Security: Staff Detected.") end
-                        end
+            -- Reel
+            local ReelUI = GUI:FindFirstChild("reel")
+            if ReelUI and ReelUI.Enabled then
+                local Bar = ReelUI:FindFirstChild("bar")
+                if Bar and Bar:FindFirstChild("fish") and Bar:FindFirstChild("playerbar") then
+                    if Bar.fish.Position.X.Scale > Bar.playerbar.Position.X.Scale then
+                        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+                    else
+                        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
                     end
                 end
+            else
+                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+            end
+        end
+    end
+end)
+
+-- [[ SMART NOCLIP & WATER WALK ]]
+RunService.Stepped:Connect(function()
+    if LocalPlayer.Character then
+        -- NoClip
+        if CONFIG.IsNoClip then
+            for _, v in pairs(LocalPlayer.Character:GetChildren()) do
+                if v:IsA("BasePart") then v.CanCollide = false end
+            end
+        end
+        -- Water Walk
+        if CONFIG.IsWaterWalk then
+            local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if root then
+                local ray = Ray.new(root.Position, Vector3.new(0, -5, 0))
+                local hit, pos, mat = workspace:FindPartOnRay(ray, LocalPlayer.Character)
+                if mat == Enum.Material.Water then
+                    local bv = root:FindFirstChild("WaterWalk") or Instance.new("BodyVelocity", root)
+                    bv.Name = "WaterWalk"
+                    bv.Velocity = Vector3.new(0, 0, 0)
+                    bv.MaxForce = Vector3.new(0, 10000, 0)
+                    root.CFrame = root.CFrame + Vector3.new(0, 0.5, 0)
+                else
+                    if root:FindFirstChild("WaterWalk") then root.WaterWalk:Destroy() end
+                end
+            end
+        end
+    end
+end)
+
+-- [[ NIGHT VISION (NPC ESP) ]]
+RunService.RenderStepped:Connect(function()
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("Model") and v:FindFirstChild("Humanoid") and (v.Name == "Merchant" or string.find(v.Name, "Rod")) then
+            if CONFIG.IsNPC_ESP then
+                if not v:FindFirstChild("NPC_ESP") then
+                    local H = Instance.new("Highlight", v)
+                    H.Name = "NPC_ESP"
+                    H.FillColor = THEME.NPC_Color
+                    H.OutlineColor = Color3.new(1,1,1)
+                    H.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    local B = Instance.new("BillboardGui", v:FindFirstChild("Head") or v.PrimaryPart)
+                    B.Name = "Info"
+                    B.Size = UDim2.new(0, 100, 0, 50)
+                    B.AlwaysOnTop = true
+                    local T = Instance.new("TextLabel", B)
+                    T.Size = UDim2.new(1,0,1,0)
+                    T.BackgroundTransparency = 1
+                    T.TextColor3 = THEME.NPC_Color
+                    T.Text = "ROD MERCHANT"
+                    T.Font = Enum.Font.Bold
+                end
+            else
+                if v:FindFirstChild("NPC_ESP") then v.NPC_ESP:Destroy() end
+                if v:FindFirstChild("Head") and v.Head:FindFirstChild("Info") then v.Head.Info:Destroy() end
             end
         end
     end
