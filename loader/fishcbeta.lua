@@ -1,8 +1,7 @@
 -- =============================================================
 -- CYBER-FISCH ULTIMATE V3.5 // BOS KEVIN EDITION
--- Theme: Cyberpunk Animated
--- Security: Role-Based Anti-Admin (Group ID: 7381705)
--- Features: Auto Fish, Auto Sell (NoClip Fly), Anti-AFK, ESP
+-- Support: Xeno-v1.3.05 & Modern Executors
+-- Features: Boot Notifs, Auto Fish, Auto Sell (Fly), Anti-Admin
 -- =============================================================
 
 local Players = game:GetService("Players")
@@ -13,36 +12,26 @@ local VirtualUser = game:GetService("VirtualUser")
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
+local StarterGui = game:GetService("StarterGui")
 local Camera = workspace.CurrentCamera
 
 -- [[ KONFIGURASI UTAMA ]]
 local CONFIG = {
-    MaxWeight = 5000,       -- Batas berat tas
+    MaxWeight = 5000,
     IsAutoShake = false,
     IsAutoSell = false,
     IsESPActive = false,
-    IsAntiAdmin = true,     -- Default ON
-    IsAntiAFK = true,       -- Default ON
-    
-    -- Konfigurasi Sell (Terbang)
-    FlySpeed = 80,          -- Kecepatan terbang
-    
-    -- [[ SECURITY UPDATE: ROLE DETECTION ]]
-    TargetGroupId = 7381705, -- ID Group Fisch Resmi
+    IsAntiAdmin = true,
+    IsAntiAFK = true,
+    FlySpeed = 80,
+    TargetGroupId = 7381705, -- Fisch Official Group
     BlacklistedRoles = {
-        "Trial Tester",
-        "Trial Mod",
-        "Moderator",
-        "Senior Mod",
-        "Admin",
-        "Developer",
-        "Lead",
-        "Creator"
+        "Trial Tester", "Trial Mod", "Moderator", "Senior Mod",
+        "Admin", "Developer", "Lead", "Creator"
     }
 }
 
 -- [[ UI VARIABLES ]]
-local UI = {}
 local GradientColor = ColorSequence.new{
     ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0, 255, 255)), -- Cyan
     ColorSequenceKeypoint.new(0.50, Color3.fromRGB(255, 0, 255)), -- Purple
@@ -50,18 +39,34 @@ local GradientColor = ColorSequence.new{
 }
 
 -- Cleanup Old UI
-if CoreGui:FindFirstChild("BosKevinUltimateV35") then
-    CoreGui.BosKevinUltimateV35:Destroy()
+if CoreGui:FindFirstChild("BosKevinXeno") then
+    CoreGui.BosKevinXeno:Destroy()
 end
 
 -- =============================================================
--- 1. BUILD UI SYSTEM (CYBERPUNK THEME)
+-- 1. NOTIFICATION SYSTEM (BOOT SEQUENCE)
+-- =============================================================
+
+function SendNotif(title, text, duration)
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = title,
+            Text = text,
+            Duration = duration,
+            Icon = "rbxassetid://16369066601" -- Icon Optional
+        })
+    end)
+end
+
+-- =============================================================
+-- 2. BUILD UI SYSTEM (CYBERPUNK THEME)
 -- =============================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "BosKevinUltimateV35"
+ScreenGui.Name = "BosKevinXeno"
 ScreenGui.Parent = CoreGui
 ScreenGui.ResetOnSpawn = false
+ScreenGui.Enabled = false -- Hidden during boot sequence
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
@@ -106,9 +111,9 @@ Title.BackgroundTransparency = 1
 Title.Position = UDim2.new(0.05, 0, 0, 10)
 Title.Size = UDim2.new(0.6, 0, 0, 25)
 Title.Font = Enum.Font.GothamBlack
-Title.Text = "CYBER-FISCH // V3.5"
+Title.Text = "XENO // BOS KEVIN"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.TextSize = 15
+Title.TextSize = 16
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
 -- Minimize & Close
@@ -168,7 +173,7 @@ MiniText.Parent = MiniFrame
 MiniText.BackgroundTransparency = 1
 MiniText.Size = UDim2.new(1, 0, 1, 0)
 MiniText.Font = Enum.Font.GothamBold
-MiniText.Text = "ULTIMATE V3.5 - BOS KEVIN"
+MiniText.Text = "XENO CONTROL - BOS KEVIN"
 MiniText.TextColor3 = Color3.fromRGB(255, 255, 255)
 MiniText.TextSize = 11
 
@@ -224,32 +229,36 @@ end
 
 -- ANIMATION FUNCTIONS
 function PlayIntro()
+    ScreenGui.Enabled = true
     MainFrame.Size = UDim2.new(0, 0, 0, 0)
     MainFrame.BackgroundTransparency = 1
     UIStroke.Transparency = 1
-    task.wait(0.2)
+    
     TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 260, 0, 400)}):Play()
     TweenService:Create(MainFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0.05}):Play()
     TweenService:Create(UIStroke, TweenInfo.new(0.5), {Transparency = 0}):Play()
 end
+
 function MinimizeUI()
     TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)}):Play()
     task.wait(0.4) MainFrame.Visible = false
     MiniFrame.Size = UDim2.new(0, 0, 0, 40) MiniFrame.Visible = true
     TweenService:Create(MiniFrame, TweenInfo.new(0.5, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 250, 0, 40)}):Play()
 end
+
 function MaximizeUI()
     TweenService:Create(MiniFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 40)}):Play()
     task.wait(0.3) MiniFrame.Visible = false
     MainFrame.Visible = true
     TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 260, 0, 400)}):Play()
 end
+
 MinBtn.MouseButton1Click:Connect(MinimizeUI)
 MiniFrame.MouseButton1Click:Connect(MaximizeUI)
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
 -- =============================================================
--- 2. BUTTONS SETUP
+-- 3. BUTTONS & INPUT
 -- =============================================================
 
 CreateCyberButton(MainFrame, "ACTIVATE AUTO FISH", 0.18, CONFIG.IsAutoShake, function(state) CONFIG.IsAutoShake = state end)
@@ -257,7 +266,6 @@ CreateCyberButton(MainFrame, "AUTO SELL (NOCLIP FLY)", 0.32, CONFIG.IsAutoSell, 
 CreateCyberButton(MainFrame, "PLAYER ESP [WALLHACK]", 0.46, CONFIG.IsESPActive, function(state) CONFIG.IsESPActive = state end)
 CreateCyberButton(MainFrame, "ANTI-ADMIN [ROLE CHECK]", 0.60, CONFIG.IsAntiAdmin, function(state) CONFIG.IsAntiAdmin = state end)
 
--- WEIGHT INPUT
 local InputBg = Instance.new("Frame")
 InputBg.Parent = MainFrame
 InputBg.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
@@ -275,7 +283,6 @@ InputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 InputBox.TextSize = 14
 InputBox.FocusLost:Connect(function() local n = tonumber(InputBox.Text) if n then CONFIG.MaxWeight = n end end)
 
--- AFK STATUS INDICATOR
 local AfkStatus = Instance.new("TextLabel")
 AfkStatus.Parent = MainFrame
 AfkStatus.BackgroundTransparency = 1
@@ -286,19 +293,18 @@ AfkStatus.Text = "ANTI-AFK: ACTIVE (24H)"
 AfkStatus.TextColor3 = Color3.fromRGB(0, 255, 100)
 AfkStatus.TextSize = 10
 
--- CREDIT
 local Credit = Instance.new("TextLabel")
 Credit.Parent = MainFrame
 Credit.BackgroundTransparency = 1
 Credit.Position = UDim2.new(0, 0, 0.94, 0)
 Credit.Size = UDim2.new(1, 0, 0, 10)
 Credit.Font = Enum.Font.Code
-Credit.Text = "BOS KEVIN // ULTIMATE EDITION"
+Credit.Text = "XENO SUPPORT // BOS KEVIN"
 Credit.TextColor3 = Color3.fromRGB(100, 100, 100)
 Credit.TextSize = 9
 
 -- =============================================================
--- 3. SAFETY FEATURES (ANTI-ADMIN & ANTI-AFK)
+-- 4. LOGIC: SAFETY & AUTOMATION
 -- =============================================================
 
 -- [[ ANTI-AFK 24H ]]
@@ -315,48 +321,39 @@ task.spawn(function()
     end)
 end)
 
--- [[ ANTI-ADMIN DETECTOR (ROLE CHECK) ]]
+-- [[ ANTI-ADMIN DETECTOR ]]
 local function CheckForAdmin(player)
     if not CONFIG.IsAntiAdmin then return end
     if player == LocalPlayer then return end
 
-    -- Ambil Nama Role dari Group ID Fisch
     local success, roleName = pcall(function()
         return player:GetRoleInGroup(CONFIG.TargetGroupId)
     end)
 
     if success and roleName then
-        -- Cek apakah role player ada di daftar Blacklist
         for _, blockedRole in ipairs(CONFIG.BlacklistedRoles) do
             if roleName == blockedRole then
-                -- ALARM! ADMIN DETECTED
-                LocalPlayer:Kick("\n[SECURITY SYSTEM]\nAdmin/Staff Detected!\nName: " .. player.Name .. "\nRole: " .. roleName .. "\nAction: Safety Kick Triggered.")
+                LocalPlayer:Kick("\n[SECURITY SYSTEM]\nAdmin/Staff Detected!\nName: " .. player.Name .. "\nRole: " .. roleName .. "\nAction: Xeno Safety Protocol Triggered.")
                 return
             end
         end
     end
 end
-
--- Scan Pemain Baru & Pemain Lama
 Players.PlayerAdded:Connect(CheckForAdmin)
 for _, p in pairs(Players:GetPlayers()) do CheckForAdmin(p) end
 
--- =============================================================
--- 4. SMART NOCLIP FLY (AUTO SELL)
--- =============================================================
-
+-- [[ SMART NOCLIP FLY ]]
 local function TweenMove(targetCFrame)
     local character = LocalPlayer.Character
     if not character or not character:FindFirstChild("HumanoidRootPart") then return end
     
     local root = character.HumanoidRootPart
     local dist = (root.Position - targetCFrame.Position).Magnitude
-    local time = dist / CONFIG.FlySpeed -- Hitung waktu berdasarkan jarak & speed
+    local time = dist / CONFIG.FlySpeed 
 
     local tInfo = TweenInfo.new(time, Enum.EasingStyle.Linear)
     local tween = TweenService:Create(root, tInfo, {CFrame = targetCFrame})
     
-    -- Aktifkan NoClip (Tembus Tembok) selama terbang
     local noclipConnection
     noclipConnection = RunService.Stepped:Connect(function()
         for _, v in pairs(character:GetChildren()) do
@@ -404,12 +401,8 @@ task.spawn(function()
                 
                 if Char and Merchant and Char:FindFirstChild("HumanoidRootPart") then
                     CONFIG.SavedPosition = Char.HumanoidRootPart.CFrame
-                    
-                    -- TERBANG KE MERCHANT (NOCLIP)
                     TweenMove(Merchant.HumanoidRootPart.CFrame * CFrame.new(0,0,3))
                     task.wait(0.5)
-                    
-                    -- JUAL
                     local prompt = Merchant:FindFirstChildWhichIsA("ProximityPrompt", true)
                     if prompt then
                         fireproximityprompt(prompt)
@@ -429,8 +422,6 @@ task.spawn(function()
                         end
                         task.wait(2)
                     end
-                    
-                    -- TERBANG BALIK (NOCLIP)
                     if CONFIG.SavedPosition then TweenMove(CONFIG.SavedPosition) end
                 end
             end
@@ -438,15 +429,11 @@ task.spawn(function()
     end
 end)
 
--- =============================================================
--- 5. ESP & AUTO FISH ENGINE
--- =============================================================
-
+-- [[ ESP & AUTO FISH ]]
 RunService.Heartbeat:Connect(function()
     if not CONFIG.IsAutoShake then return end
     local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
     if not PlayerGui then return end
-    
     local shakeUI = PlayerGui:FindFirstChild("shakeui")
     if shakeUI and shakeUI.Enabled then
         pcall(function()
@@ -458,32 +445,22 @@ RunService.Heartbeat:Connect(function()
             end
         end)
     end
-    
     local reelUI = PlayerGui:FindFirstChild("reel")
     if reelUI and reelUI.Enabled then
         pcall(function()
             local bar = reelUI.bar
             if bar.fish.Position.X.Scale > bar.playerbar.Position.X.Scale then
-                if not CONFIG.IsHoldingSpace then
-                    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
-                    CONFIG.IsHoldingSpace = true
-                end
+                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
             else
-                if CONFIG.IsHoldingSpace then
-                    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
-                    CONFIG.IsHoldingSpace = false
-                end
+                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
             end
         end)
     else
-        if CONFIG.IsHoldingSpace then
-            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
-            CONFIG.IsHoldingSpace = false
-        end
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
     end
 end)
 
--- ESP Engine (Simple & Optimized)
+-- ESP Engine
 local ESPEngine = { Objects = {} }
 function ESPEngine:Add(player)
     if player == LocalPlayer then return end
@@ -525,7 +502,6 @@ RunService.RenderStepped:Connect(function()
             data.High.Adornee = player.Character
             data.Bill.Enabled = true
             data.High.Enabled = true
-            
             local dist = math.floor((player.Character.HumanoidRootPart.Position - Camera.CFrame.Position).Magnitude)
             data.Txt.Text = player.DisplayName .. "\n[" .. dist .. "m]"
             if player.Team == LocalPlayer.Team then
@@ -539,4 +515,18 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
-PlayIntro()
+-- =============================================================
+-- 5. BOOT SEQUENCE (NOTIFICATIONS)
+-- =============================================================
+task.spawn(function()
+    -- 1. Notif Inject (0-2s)
+    SendNotif("XENO-V1.3.05 DETECTED", "Injecting Cyber-Fisch V3.5...", 2)
+    task.wait(2)
+    
+    -- 2. Notif Bypass (2-4s)
+    SendNotif("BOS KEVIN SYSTEM", "Bypassing Fisch Anti-Cheat...", 2)
+    task.wait(2)
+    
+    -- 3. Load GUI
+    PlayIntro()
+end)
