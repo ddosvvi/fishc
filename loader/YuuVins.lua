@@ -1,7 +1,7 @@
 -- =============================================================
--- YuuVins Exploids // ULTIMATE V7.7 (GOD MODE)
+-- YuuVins Exploids // ULTIMATE V7.8 (ROD QUEST FIX)
 -- Owner: ZAYANGGGGG
--- Status: ANTI-LAVA + SAFE MAGMA ROD QUEST
+-- Status: ALL RODS GUIDED + MAGMA GOD MODE + BRICK FIX
 -- =============================================================
 
 local Players = game:GetService("Players")
@@ -63,7 +63,7 @@ end
 task.spawn(function()
     StarterGui:SetCore("SendNotification", {
         Title = "YuuVins Exploids",
-        Text = "Injecting Anti-Lava Module...",
+        Text = "Updating Quest Logic...",
         Duration = 2.5,
         Icon = "rbxassetid://16369066601"
     })
@@ -318,11 +318,17 @@ local function TweenTP(cframe)
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     local root = char.HumanoidRootPart
     
-    -- GOD MODE ACTIVATION (If enabled)
+    -- GOD MODE LOGIC (AUTO LAVA WALK)
     if CONFIG.IsGodMode then
-        local humanoid = char:FindFirstChild("Humanoid")
-        if humanoid then
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false) -- Disable Death
+        local hum = char:FindFirstChild("Humanoid")
+        if hum then hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false) end
+        
+        -- Bikin Lava Jadi Lantai Aman
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v.Name == "Lava" and v:IsA("BasePart") then
+                v.CanTouch = false 
+                v.CanCollide = true -- Bisa diinjak
+            end
         end
     end
     
@@ -346,10 +352,6 @@ local function TweenTP(cframe)
     root.Anchored = true
     task.wait(1)
     root.Anchored = false
-end
-
-local function TP_To_Position(pos)
-    TweenTP(CFrame.new(pos))
 end
 
 -- =============================================================
@@ -386,13 +388,13 @@ for name, pos in pairs(IslandMap) do
     CreateButton(TabIsland, "TP: " .. name, function() TweenTP(CFrame.new(pos)) end)
 end
 
--- TAB 4: SECRET RODS (WITH GUIDE & ANTI-LAVA)
+-- TAB 4: SECRET RODS (FULL GUIDE & AUTO CONFIG)
 local TabRod = CreateTab("Secret Rods")
 local RodMap = {
     ["Snowcap: Lost Rod"] = {Pos=Vector3.new(2650, 140, 2450), Price="2,000 C$", Guide="Masuk gua di tebing bawah Snowcap."},
     ["Statue: Kings Rod"] = {Pos=Vector3.new(30, 135, -1020), Price="120,000 C$", Guide="Bayar 400C$ ke Cole, turun lift ke Altar."},
     ["Arch: Destiny Rod"] = {Pos=Vector3.new(980, 150, -1240), Price="190,000 C$", Guide="Lengkapi 70% Bestiary."},
-    ["Roslit: Magma Rod"] = {Pos=Vector3.new(-1830, 165, 160), Price="15,000 C$", Guide="Bawa Pufferfish ke Orc. (GOD MODE ACTIVE)"}, -- Magma
+    ["Roslit: Magma Rod"] = {Pos=Vector3.new(-1830, 165, 160), Price="15,000 C$", Guide="God Mode Aktif! Jalan di atas lava ke Orc."}, -- Magma
     ["Swamp: Fungal Rod"] = {Pos=Vector3.new(2550, 135, -730), Price="Quest", Guide="Tangkap Alligator (Malam/Foggy/Hujan)."},
     ["Ancient: Forgotten Fang"] = {Pos=Vector3.new(-3150, 135, 2600), Price="Crafting", Guide="Belakang air terjun Ancient Isle."},
     ["Deep: Trident Rod"] = {Pos=Vector3.new(-970, 135, 1330), Price="Quest", Guide="Buka gerbang Desolate Deep (5 Relics)."},
@@ -405,13 +407,19 @@ for name, data in pairs(RodMap) do
         -- Auto Activate God Mode jika Magma Rod
         if string.find(name, "Magma") then
             CONFIG.IsGodMode = true
-            StarterGui:SetCore("SendNotification", {Title="GOD MODE ON", Text="Anti-Lava Activated!", Duration=3})
+            StarterGui:SetCore("SendNotification", {Title="ANTI-LAVA ON", Text="You can walk on lava now!", Duration=5})
         else
-            CONFIG.IsGodMode = false -- Matikan jika bukan magma
+            CONFIG.IsGodMode = false 
         end
         
         TweenTP(CFrame.new(data.Pos))
-        StarterGui:SetCore("SendNotification", {Title=name, Text="Price: " .. data.Price .. "\n" .. data.Guide, Duration=10})
+        
+        -- Tampilkan Info Detail
+        StarterGui:SetCore("SendNotification", {
+            Title = name,
+            Text = "Price: " .. data.Price .. "\nInfo: " .. data.Guide,
+            Duration = 15,
+        })
     end)
 end
 
@@ -426,13 +434,17 @@ CreateButton(TabSpecial, "[AUTO] Quest Brick Rod", function()
     }
     
     for _, loc in ipairs(locs) do
-        StarterGui:SetCore("SendNotification", {Title="Brick Quest", Text="Going to: " .. loc.Name, Duration=3})
+        StarterGui:SetCore("SendNotification", {Title="Quest Progress", Text="Going to: " .. loc.Name, Duration=3})
         TweenTP(CFrame.new(loc.Pos))
         task.wait(1) 
-        StarterGui:SetCore("SendNotification", {Title="Action", Text="Look for White Lego Brick!", Duration=5})
-        task.wait(6) 
+        
+        if loc.Name == "Claim NPC (Tree)" then
+            StarterGui:SetCore("SendNotification", {Title="FINISH!", Text="Talk to the NPC to get Brick Rod!", Duration=10})
+        else
+            StarterGui:SetCore("SendNotification", {Title="Action Required", Text="Look for White Lego Brick here!", Duration=5})
+            task.wait(6) -- Waktu untuk ambil
+        end
     end
-    StarterGui:SetCore("SendNotification", {Title="Quest Done", Text="Check your inventory!", Duration=5})
 end)
 
 CreateButton(TabSpecial, "[AUTO] Find Midas Merchant", function()
@@ -492,6 +504,7 @@ task.spawn(function()
             for _, v in pairs(workspace:GetDescendants()) do
                 if v.Name == "Lava" and v:IsA("BasePart") then
                     v.CanTouch = false -- Lava tidak bisa disentuh
+                    v.CanCollide = true -- Lava jadi lantai padat
                 end
             end
         end
@@ -548,6 +561,7 @@ RunService.Heartbeat:Connect(function()
             end
         end
     else
+        -- [FIX] FORCE RELEASE SPACE
         VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
     end
 end)
