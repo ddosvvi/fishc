@@ -1,25 +1,44 @@
 -- =============================================================
--- CYBER-FISCH PREMIUM V1 // BOS KEVIN EDITION
+-- CYBER-FISCH ULTIMATE V3.5 // BOS KEVIN EDITION
 -- Theme: Cyberpunk Animated
--- Features: Intro Animation, Minimize/Maximize, Auto Logic
+-- Security: Role-Based Anti-Admin (Group ID: 7381705)
+-- Features: Auto Fish, Auto Sell (NoClip Fly), Anti-AFK, ESP
 -- =============================================================
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
+local VirtualUser = game:GetService("VirtualUser")
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
+local Camera = workspace.CurrentCamera
 
--- [[ CONFIGURATION ]]
+-- [[ KONFIGURASI UTAMA ]]
 local CONFIG = {
-    MaxWeight = 5000,
+    MaxWeight = 5000,       -- Batas berat tas
     IsAutoShake = false,
     IsAutoSell = false,
-    IsHoldingSpace = false,
-    SavedPosition = nil,
-    UI_Visible = true
+    IsESPActive = false,
+    IsAntiAdmin = true,     -- Default ON
+    IsAntiAFK = true,       -- Default ON
+    
+    -- Konfigurasi Sell (Terbang)
+    FlySpeed = 80,          -- Kecepatan terbang
+    
+    -- [[ SECURITY UPDATE: ROLE DETECTION ]]
+    TargetGroupId = 7381705, -- ID Group Fisch Resmi
+    BlacklistedRoles = {
+        "Trial Tester",
+        "Trial Mod",
+        "Moderator",
+        "Senior Mod",
+        "Admin",
+        "Developer",
+        "Lead",
+        "Creator"
+    }
 }
 
 -- [[ UI VARIABLES ]]
@@ -31,33 +50,32 @@ local GradientColor = ColorSequence.new{
 }
 
 -- Cleanup Old UI
-if CoreGui:FindFirstChild("BosKevinPremiumV1") then
-    CoreGui.BosKevinPremiumV1:Destroy()
+if CoreGui:FindFirstChild("BosKevinUltimateV35") then
+    CoreGui.BosKevinUltimateV35:Destroy()
 end
 
 -- =============================================================
--- 1. BUILD UI SYSTEM
+-- 1. BUILD UI SYSTEM (CYBERPUNK THEME)
 -- =============================================================
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "BosKevinPremiumV1"
+ScreenGui.Name = "BosKevinUltimateV35"
 ScreenGui.Parent = CoreGui
 ScreenGui.ResetOnSpawn = false
 
--- [[ MAIN WINDOW ]]
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
 MainFrame.BackgroundTransparency = 0.05
-MainFrame.Position = UDim2.new(0.5, -130, 0.5, -160) -- Center Anchor Logic later
-MainFrame.Size = UDim2.new(0, 0, 0, 0) -- Start small for animation
+MainFrame.Position = UDim2.new(0.5, -130, 0.5, -200) 
+MainFrame.Size = UDim2.new(0, 0, 0, 0) -- Animasi Start
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.ClipsDescendants = true
 MainFrame.Active = true
 MainFrame.Draggable = true
 
--- Main Stroke (Border)
+-- Border Gradient
 local UIStroke = Instance.new("UIStroke")
 UIStroke.Parent = MainFrame
 UIStroke.Thickness = 2
@@ -68,7 +86,6 @@ UIGradient.Parent = UIStroke
 UIGradient.Color = GradientColor
 UIGradient.Rotation = 45
 
--- Animated Gradient Loop
 task.spawn(function()
     while MainFrame.Parent do
         local tween = TweenService:Create(UIGradient, TweenInfo.new(2, Enum.EasingStyle.Linear), {Rotation = 225})
@@ -82,19 +99,19 @@ local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 10)
 UICorner.Parent = MainFrame
 
--- [[ TITLE BAR & CONTROLS ]]
+-- Header
 local Title = Instance.new("TextLabel")
 Title.Parent = MainFrame
 Title.BackgroundTransparency = 1
 Title.Position = UDim2.new(0.05, 0, 0, 10)
 Title.Size = UDim2.new(0.6, 0, 0, 25)
 Title.Font = Enum.Font.GothamBlack
-Title.Text = "CYBER-FISCH // V1"
+Title.Text = "CYBER-FISCH // V3.5"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.TextSize = 16
+Title.TextSize = 15
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
--- Minimize Button (-)
+-- Minimize & Close
 local MinBtn = Instance.new("TextButton")
 MinBtn.Parent = MainFrame
 MinBtn.BackgroundTransparency = 1
@@ -105,7 +122,6 @@ MinBtn.Text = "-"
 MinBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
 MinBtn.TextSize = 20
 
--- Close Button (X)
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Parent = MainFrame
 CloseBtn.BackgroundTransparency = 1
@@ -121,22 +137,21 @@ local Line = Instance.new("Frame")
 Line.Parent = MainFrame
 Line.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 Line.BorderSizePixel = 0
-Line.Position = UDim2.new(0, 0, 0.15, 0)
+Line.Position = UDim2.new(0, 0, 0.12, 0)
 Line.Size = UDim2.new(1, 0, 0, 1)
-
 local LineGrad = Instance.new("UIGradient")
 LineGrad.Color = GradientColor
 LineGrad.Parent = Line
 
--- [[ MINIMIZED WIDGET ]]
-local MiniFrame = Instance.new("TextButton") -- Button agar bisa diklik untuk maximize
+-- Minimized Widget
+local MiniFrame = Instance.new("TextButton") 
 MiniFrame.Name = "MiniFrame"
 MiniFrame.Parent = ScreenGui
 MiniFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-MiniFrame.Position = UDim2.new(1, -260, 0.9, 0) -- Pojok kanan bawah default
+MiniFrame.Position = UDim2.new(1, -260, 0.9, 0) 
 MiniFrame.Size = UDim2.new(0, 250, 0, 40)
 MiniFrame.AnchorPoint = Vector2.new(0, 0)
-MiniFrame.Visible = false -- Hidden initially
+MiniFrame.Visible = false 
 MiniFrame.AutoButtonColor = false
 MiniFrame.Active = true
 MiniFrame.Draggable = true
@@ -145,43 +160,29 @@ local MiniStroke = Instance.new("UIStroke")
 MiniStroke.Parent = MiniFrame
 MiniStroke.Thickness = 2
 MiniStroke.Color = Color3.fromRGB(0, 255, 255)
-
 local MiniCorner = Instance.new("UICorner")
 MiniCorner.CornerRadius = UDim.new(0, 6)
 MiniCorner.Parent = MiniFrame
-
 local MiniText = Instance.new("TextLabel")
 MiniText.Parent = MiniFrame
 MiniText.BackgroundTransparency = 1
 MiniText.Size = UDim2.new(1, 0, 1, 0)
 MiniText.Font = Enum.Font.GothamBold
-MiniText.Text = "EXECUTOR PREMIUM BETA BOS KEVIN V1"
+MiniText.Text = "ULTIMATE V3.5 - BOS KEVIN"
 MiniText.TextColor3 = Color3.fromRGB(255, 255, 255)
 MiniText.TextSize = 11
 
-local MiniGlow = Instance.new("ImageLabel") -- Fake glow effect
-MiniGlow.Parent = MiniFrame
-MiniGlow.BackgroundTransparency = 1
-MiniGlow.Image = "rbxassetid://5028857472"
-MiniGlow.ImageColor3 = Color3.fromRGB(0, 255, 255)
-MiniGlow.Size = UDim2.new(1.2, 0, 1.5, 0)
-MiniGlow.Position = UDim2.new(-0.1, 0, -0.25, 0)
-MiniGlow.ZIndex = 0
-
--- =============================================================
--- 2. HELPER FUNCTIONS & ANIMATION
--- =============================================================
-
-function CreateCyberButton(parent, text, yPos, callback)
+-- [[ HELPER: CREATE BUTTON ]]
+function CreateCyberButton(parent, text, yPos, defaultState, callback)
     local Btn = Instance.new("TextButton")
     Btn.Parent = parent
     Btn.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
     Btn.Position = UDim2.new(0.1, 0, yPos, 0)
-    Btn.Size = UDim2.new(0.8, 0, 0.15, 0)
+    Btn.Size = UDim2.new(0.8, 0, 0.11, 0)
     Btn.Font = Enum.Font.GothamBold
     Btn.Text = text
-    Btn.TextColor3 = Color3.fromRGB(180, 180, 180)
-    Btn.TextSize = 13
+    Btn.TextColor3 = defaultState and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 180, 180)
+    Btn.TextSize = 11
     Btn.AutoButtonColor = false
 
     local BtnCorner = Instance.new("UICorner")
@@ -191,21 +192,20 @@ function CreateCyberButton(parent, text, yPos, callback)
     local BtnStroke = Instance.new("UIStroke")
     BtnStroke.Parent = Btn
     BtnStroke.Thickness = 1
-    BtnStroke.Color = Color3.fromRGB(60, 60, 80)
+    BtnStroke.Color = defaultState and Color3.fromRGB(0, 255, 255) or Color3.fromRGB(60, 60, 80)
     BtnStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
     local Status = Instance.new("Frame")
     Status.Parent = Btn
-    Status.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    Status.BackgroundColor3 = defaultState and Color3.fromRGB(0, 255, 255) or Color3.fromRGB(50, 50, 50)
     Status.Position = UDim2.new(0, 0, 0.9, 0)
     Status.Size = UDim2.new(1, 0, 0.1, 0)
     Status.BorderSizePixel = 0
-    
     local StatusCorner = Instance.new("UICorner")
     StatusCorner.CornerRadius = UDim.new(0, 6)
     StatusCorner.Parent = Status
 
-    local toggled = false
+    local toggled = defaultState
     Btn.MouseButton1Click:Connect(function()
         toggled = not toggled
         if toggled then
@@ -222,79 +222,48 @@ function CreateCyberButton(parent, text, yPos, callback)
     return Btn
 end
 
--- ANIMATION: INTRO
+-- ANIMATION FUNCTIONS
 function PlayIntro()
     MainFrame.Size = UDim2.new(0, 0, 0, 0)
     MainFrame.BackgroundTransparency = 1
     UIStroke.Transparency = 1
-    
     task.wait(0.2)
-    -- Bounce Effect
-    TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 260, 0, 320)}):Play()
+    TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 260, 0, 400)}):Play()
     TweenService:Create(MainFrame, TweenInfo.new(0.5), {BackgroundTransparency = 0.05}):Play()
     TweenService:Create(UIStroke, TweenInfo.new(0.5), {Transparency = 0}):Play()
 end
-
--- ANIMATION: MINIMIZE
 function MinimizeUI()
-    CONFIG.UI_Visible = false
-    -- Shrink Main
-    local tweenOut = TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)})
-    tweenOut:Play()
-    tweenOut.Completed:Wait()
-    MainFrame.Visible = false
-    
-    -- Show Mini
-    MiniFrame.Size = UDim2.new(0, 0, 0, 40)
-    MiniFrame.Visible = true
+    TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)}):Play()
+    task.wait(0.4) MainFrame.Visible = false
+    MiniFrame.Size = UDim2.new(0, 0, 0, 40) MiniFrame.Visible = true
     TweenService:Create(MiniFrame, TweenInfo.new(0.5, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 250, 0, 40)}):Play()
 end
-
--- ANIMATION: MAXIMIZE
 function MaximizeUI()
-    CONFIG.UI_Visible = true
-    -- Shrink Mini
-    local tweenOut = TweenService:Create(MiniFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 40)})
-    tweenOut:Play()
-    tweenOut.Completed:Wait()
-    MiniFrame.Visible = false
-    
-    -- Show Main
+    TweenService:Create(MiniFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 40)}):Play()
+    task.wait(0.3) MiniFrame.Visible = false
     MainFrame.Visible = true
-    TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 260, 0, 320)}):Play()
+    TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 260, 0, 400)}):Play()
 end
-
--- BUTTON EVENTS
 MinBtn.MouseButton1Click:Connect(MinimizeUI)
 MiniFrame.MouseButton1Click:Connect(MaximizeUI)
-CloseBtn.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-    -- Optional: Disable logic
-    CONFIG.IsAutoShake = false
-    CONFIG.IsAutoSell = false
-end)
+CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
 -- =============================================================
--- 3. CONTENT & LOGIC
+-- 2. BUTTONS SETUP
 -- =============================================================
 
-CreateCyberButton(MainFrame, "ACTIVATE AUTO FISH", 0.25, function(state)
-    CONFIG.IsAutoShake = state
-end)
-
-CreateCyberButton(MainFrame, "ACTIVATE AUTO SELL", 0.45, function(state)
-    CONFIG.IsAutoSell = state
-end)
+CreateCyberButton(MainFrame, "ACTIVATE AUTO FISH", 0.18, CONFIG.IsAutoShake, function(state) CONFIG.IsAutoShake = state end)
+CreateCyberButton(MainFrame, "AUTO SELL (NOCLIP FLY)", 0.32, CONFIG.IsAutoSell, function(state) CONFIG.IsAutoSell = state end)
+CreateCyberButton(MainFrame, "PLAYER ESP [WALLHACK]", 0.46, CONFIG.IsESPActive, function(state) CONFIG.IsESPActive = state end)
+CreateCyberButton(MainFrame, "ANTI-ADMIN [ROLE CHECK]", 0.60, CONFIG.IsAntiAdmin, function(state) CONFIG.IsAntiAdmin = state end)
 
 -- WEIGHT INPUT
 local InputBg = Instance.new("Frame")
 InputBg.Parent = MainFrame
 InputBg.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-InputBg.Position = UDim2.new(0.1, 0, 0.65, 0)
-InputBg.Size = UDim2.new(0.8, 0, 0.12, 0)
-local InputCorner = Instance.new("UICorner")
-InputCorner.CornerRadius = UDim.new(0, 6)
-InputCorner.Parent = InputBg
+InputBg.Position = UDim2.new(0.1, 0, 0.75, 0)
+InputBg.Size = UDim2.new(0.8, 0, 0.08, 0)
+local InputCorner = Instance.new("UICorner") InputCorner.CornerRadius = UDim.new(0, 6) InputCorner.Parent = InputBg
 local InputBox = Instance.new("TextBox")
 InputBox.Parent = InputBg
 InputBox.Size = UDim2.new(1, 0, 1, 0)
@@ -304,26 +273,103 @@ InputBox.Text = tostring(CONFIG.MaxWeight)
 InputBox.PlaceholderText = "MAX WEIGHT (KG)"
 InputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 InputBox.TextSize = 14
+InputBox.FocusLost:Connect(function() local n = tonumber(InputBox.Text) if n then CONFIG.MaxWeight = n end end)
 
-InputBox.FocusLost:Connect(function()
-    local n = tonumber(InputBox.Text)
-    if n then CONFIG.MaxWeight = n end
-end)
+-- AFK STATUS INDICATOR
+local AfkStatus = Instance.new("TextLabel")
+AfkStatus.Parent = MainFrame
+AfkStatus.BackgroundTransparency = 1
+AfkStatus.Position = UDim2.new(0, 0, 0.86, 0)
+AfkStatus.Size = UDim2.new(1, 0, 0, 20)
+AfkStatus.Font = Enum.Font.GothamBold
+AfkStatus.Text = "ANTI-AFK: ACTIVE (24H)"
+AfkStatus.TextColor3 = Color3.fromRGB(0, 255, 100)
+AfkStatus.TextSize = 10
 
 -- CREDIT
 local Credit = Instance.new("TextLabel")
 Credit.Parent = MainFrame
 Credit.BackgroundTransparency = 1
-Credit.Position = UDim2.new(0, 0, 0.9, 0)
-Credit.Size = UDim2.new(1, 0, 0, 20)
+Credit.Position = UDim2.new(0, 0, 0.94, 0)
+Credit.Size = UDim2.new(1, 0, 0, 10)
 Credit.Font = Enum.Font.Code
-Credit.Text = "LOGGED IN: BOS KEVIN"
+Credit.Text = "BOS KEVIN // ULTIMATE EDITION"
 Credit.TextColor3 = Color3.fromRGB(100, 100, 100)
-Credit.TextSize = 10
+Credit.TextSize = 9
 
 -- =============================================================
--- 4. BACKEND LOGIC (AUTO FISH/SELL)
+-- 3. SAFETY FEATURES (ANTI-ADMIN & ANTI-AFK)
 -- =============================================================
+
+-- [[ ANTI-AFK 24H ]]
+task.spawn(function()
+    local vu = VirtualUser
+    LocalPlayer.Idled:Connect(function()
+        if CONFIG.IsAntiAFK then
+            vu:CaptureController()
+            vu:ClickButton2(Vector2.new())
+            AfkStatus.Text = "ANTI-AFK: PREVENTED KICK!"
+            task.wait(2)
+            AfkStatus.Text = "ANTI-AFK: ACTIVE (24H)"
+        end
+    end)
+end)
+
+-- [[ ANTI-ADMIN DETECTOR (ROLE CHECK) ]]
+local function CheckForAdmin(player)
+    if not CONFIG.IsAntiAdmin then return end
+    if player == LocalPlayer then return end
+
+    -- Ambil Nama Role dari Group ID Fisch
+    local success, roleName = pcall(function()
+        return player:GetRoleInGroup(CONFIG.TargetGroupId)
+    end)
+
+    if success and roleName then
+        -- Cek apakah role player ada di daftar Blacklist
+        for _, blockedRole in ipairs(CONFIG.BlacklistedRoles) do
+            if roleName == blockedRole then
+                -- ALARM! ADMIN DETECTED
+                LocalPlayer:Kick("\n[SECURITY SYSTEM]\nAdmin/Staff Detected!\nName: " .. player.Name .. "\nRole: " .. roleName .. "\nAction: Safety Kick Triggered.")
+                return
+            end
+        end
+    end
+end
+
+-- Scan Pemain Baru & Pemain Lama
+Players.PlayerAdded:Connect(CheckForAdmin)
+for _, p in pairs(Players:GetPlayers()) do CheckForAdmin(p) end
+
+-- =============================================================
+-- 4. SMART NOCLIP FLY (AUTO SELL)
+-- =============================================================
+
+local function TweenMove(targetCFrame)
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+    
+    local root = character.HumanoidRootPart
+    local dist = (root.Position - targetCFrame.Position).Magnitude
+    local time = dist / CONFIG.FlySpeed -- Hitung waktu berdasarkan jarak & speed
+
+    local tInfo = TweenInfo.new(time, Enum.EasingStyle.Linear)
+    local tween = TweenService:Create(root, tInfo, {CFrame = targetCFrame})
+    
+    -- Aktifkan NoClip (Tembus Tembok) selama terbang
+    local noclipConnection
+    noclipConnection = RunService.Stepped:Connect(function()
+        for _, v in pairs(character:GetChildren()) do
+            if v:IsA("BasePart") then v.CanCollide = false end
+        end
+    end)
+
+    tween:Play()
+    tween.Completed:Wait()
+    
+    if noclipConnection then noclipConnection:Disconnect() end
+end
+
 local function FindMerchant()
     for _, obj in pairs(workspace:GetDescendants()) do
         if obj:IsA("Model") and (obj.Name == "Merchant" or obj.Name == "Marc Merchant") then
@@ -343,10 +389,10 @@ local function GetCurrentWeight()
             end
         end
     end
-    return #LocalPlayer.Backpack:GetChildren()
+    return 0
 end
 
--- Auto Sell Loop
+-- AUTO SELL LOOP
 task.spawn(function()
     while true do
         task.wait(2)
@@ -355,10 +401,15 @@ task.spawn(function()
             if w and w >= CONFIG.MaxWeight then
                 local Char = LocalPlayer.Character
                 local Merchant = FindMerchant()
+                
                 if Char and Merchant and Char:FindFirstChild("HumanoidRootPart") then
                     CONFIG.SavedPosition = Char.HumanoidRootPart.CFrame
-                    Char.HumanoidRootPart.CFrame = Merchant.HumanoidRootPart.CFrame * CFrame.new(0,0,3)
-                    task.wait(1)
+                    
+                    -- TERBANG KE MERCHANT (NOCLIP)
+                    TweenMove(Merchant.HumanoidRootPart.CFrame * CFrame.new(0,0,3))
+                    task.wait(0.5)
+                    
+                    -- JUAL
                     local prompt = Merchant:FindFirstChildWhichIsA("ProximityPrompt", true)
                     if prompt then
                         fireproximityprompt(prompt)
@@ -378,20 +429,24 @@ task.spawn(function()
                         end
                         task.wait(2)
                     end
-                    if CONFIG.SavedPosition then Char.HumanoidRootPart.CFrame = CONFIG.SavedPosition end
+                    
+                    -- TERBANG BALIK (NOCLIP)
+                    if CONFIG.SavedPosition then TweenMove(CONFIG.SavedPosition) end
                 end
             end
         end
     end
 end)
 
--- Auto Shake/Reel Loop
+-- =============================================================
+-- 5. ESP & AUTO FISH ENGINE
+-- =============================================================
+
 RunService.Heartbeat:Connect(function()
     if not CONFIG.IsAutoShake then return end
     local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
     if not PlayerGui then return end
     
-    -- Shake
     local shakeUI = PlayerGui:FindFirstChild("shakeui")
     if shakeUI and shakeUI.Enabled then
         pcall(function()
@@ -404,7 +459,6 @@ RunService.Heartbeat:Connect(function()
         end)
     end
     
-    -- Reel
     local reelUI = PlayerGui:FindFirstChild("reel")
     if reelUI and reelUI.Enabled then
         pcall(function()
@@ -429,5 +483,60 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- PLAY INTRO
+-- ESP Engine (Simple & Optimized)
+local ESPEngine = { Objects = {} }
+function ESPEngine:Add(player)
+    if player == LocalPlayer then return end
+    local Bill = Instance.new("BillboardGui")
+    Bill.AlwaysOnTop = true
+    Bill.Size = UDim2.new(0, 200, 0, 50)
+    Bill.StudsOffset = Vector3.new(0, 3, 0)
+    local Txt = Instance.new("TextLabel", Bill)
+    Txt.Size = UDim2.new(1,0,1,0)
+    Txt.BackgroundTransparency = 1
+    Txt.Font = Enum.Font.GothamBold
+    Txt.TextColor3 = Color3.new(1,1,1)
+    Txt.TextStrokeTransparency = 0
+    Txt.TextSize = 12
+    local High = Instance.new("Highlight")
+    High.FillTransparency = 0.5
+    ESPEngine.Objects[player] = {Bill = Bill, High = High, Txt = Txt}
+end
+function ESPEngine:Remove(player)
+    if ESPEngine.Objects[player] then
+        ESPEngine.Objects[player].Bill:Destroy()
+        ESPEngine.Objects[player].High:Destroy()
+        ESPEngine.Objects[player] = nil
+    end
+end
+for _, p in pairs(Players:GetPlayers()) do ESPEngine:Add(p) end
+Players.PlayerAdded:Connect(function(p) ESPEngine:Add(p) end)
+Players.PlayerRemoving:Connect(function(p) ESPEngine:Remove(p) end)
+
+RunService.RenderStepped:Connect(function()
+    for player, data in pairs(ESPEngine.Objects) do
+        if not CONFIG.IsESPActive or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
+            data.Bill.Enabled = false
+            data.High.Enabled = false
+        else
+            data.Bill.Parent = CoreGui
+            data.Bill.Adornee = player.Character.HumanoidRootPart
+            data.High.Parent = CoreGui
+            data.High.Adornee = player.Character
+            data.Bill.Enabled = true
+            data.High.Enabled = true
+            
+            local dist = math.floor((player.Character.HumanoidRootPart.Position - Camera.CFrame.Position).Magnitude)
+            data.Txt.Text = player.DisplayName .. "\n[" .. dist .. "m]"
+            if player.Team == LocalPlayer.Team then
+                data.High.FillColor = Color3.fromRGB(0, 255, 100)
+                data.Txt.TextColor3 = Color3.fromRGB(0, 255, 100)
+            else
+                data.High.FillColor = Color3.fromRGB(255, 50, 50)
+                data.Txt.TextColor3 = Color3.fromRGB(255, 50, 50)
+            end
+        end
+    end
+end)
+
 PlayIntro()
