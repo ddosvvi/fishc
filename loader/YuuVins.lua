@@ -67,11 +67,11 @@ task.spawn(function()
         Title = "YuuVins Exploids",
         Text = "Injecting Visual Modules...",
         Duration = 2.5,
-        Icon = "rbxassetid://110623538266999"
+        Icon = "rbxassetid://16369066601"
     })
     task.wait(2.5)
     StarterGui:SetCore("SendNotification", {
-        Title = "WELCOME USER PREMIUM",
+        Title = "WELCOME USER ",
         Text = "Owner Xploid ZAYANGGGGG",
         Duration = 2.5,
     })
