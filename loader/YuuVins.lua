@@ -1,3 +1,9 @@
+-- =============================================================
+-- YuuVins Exploids // ULTIMATE V7.2 (PERFECT REEL)
+-- Owner: ZAYANGGGGG
+-- Status: UPDATED Logic (Smart Sell & Precision Reel)
+-- =============================================================
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -17,7 +23,7 @@ local CONFIG = {
     IsESP = false,
     IsAntiAFK = false,
     IsBypass = true,
-    IsAFKLevel = false, -- Mode No-Life Rod
+    IsAFKLevel = false,
     
     SavedPosition = nil,
     FlySpeed = 300,
@@ -31,7 +37,7 @@ local THEME = {
     Sidebar = Color3.fromRGB(15, 18, 30),
     Item = Color3.fromRGB(20, 25, 40),
     Text = Color3.fromRGB(240, 240, 255),
-    Accent = Color3.fromRGB(0, 230, 255), 
+    Accent = Color3.fromRGB(0, 230, 255),
     Glow1 = Color3.fromRGB(0, 180, 255),
     Glow2 = Color3.fromRGB(0, 80, 200),
     ESP_Color = Color3.fromRGB(0, 255, 255)
@@ -56,7 +62,7 @@ end
 task.spawn(function()
     StarterGui:SetCore("SendNotification", {
         Title = "YuuVins Exploids",
-        Text = "Loading Island Maps...",
+        Text = "Calibrating Reel Logic...",
         Duration = 2.5,
         Icon = "rbxassetid://16369066601"
     })
@@ -83,7 +89,7 @@ MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = THEME.Bg
 MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
-MainFrame.Size = UDim2.new(0, 600, 0, 400) -- Lebih Besar
+MainFrame.Size = UDim2.new(0, 600, 0, 400)
 MainFrame.ClipsDescendants = true
 MainFrame.Active = true
 MainFrame.Draggable = true
@@ -342,12 +348,12 @@ local Tab1 = CreateTab("Auto Mancing")
 CreateToggle(Tab1, "Auto Fish V3", "Auto Click + Shake + Perfect Reel", false, function(s) CONFIG.IsAutoFish = s end)
 CreateToggle(Tab1, "AFK Level 500", "No-Life Rod Mode (Auto Fish 24H)", false, function(s) 
     CONFIG.IsAFKLevel = s 
-    CONFIG.IsAutoFish = s -- Sinkronisasi
+    CONFIG.IsAutoFish = s 
 end)
 
 -- TAB 2: AUTO SELL
 local Tab2 = CreateTab("Auto Sell")
-CreateToggle(Tab2, "Teleport ke Merchant", "ON: Pindah ke Merchant | OFF: Balik", false, function(s) CONFIG.IsAutoSell = s end)
+CreateToggle(Tab2, "Teleport ke Merchant", "ON: Ke Merchant Terdekat | OFF: Balik", false, function(s) CONFIG.IsAutoSell = s end)
 
 -- TAB 3: PULAU (ISLANDS)
 local TabIsland = CreateTab("Pulau & Zone")
@@ -359,7 +365,7 @@ local IslandMap = {
     ["Sunstone Island"] = Vector3.new(-930, 132, -1120),
     ["Mushgrove Swamp"] = Vector3.new(2450, 130, -700),
     ["Forsaken Shores"] = Vector3.new(-2500, 132, 1550),
-    ["Ancient Isle"] = Vector3.new(-3150, -100, 2600), -- Estimasi
+    ["Ancient Isle"] = Vector3.new(-3150, -100, 2600),
     ["Statue of Sovereignty"] = Vector3.new(30, 140, -1020),
     ["The Arch"] = Vector3.new(980, 130, -1240)
 }
@@ -377,9 +383,9 @@ local RodMap = {
     ["Swamp: Fungal Rod"] = Vector3.new(2450, 130, -700),
     ["Ancient: Forgotten Fang"] = Vector3.new(-3150, -100, 2600),
     ["Deep: Trident & Depths"] = Vector3.new(-970, -260, 1330),
-    ["Vertigo: Aurora/Nocturnal"] = Vector3.new(-100, -500, 1000), -- Estimasi Vertigo
+    ["Vertigo: Aurora/Nocturnal"] = Vector3.new(-100, -500, 1000), 
     ["Forsaken: Scurvy/Sunken"] = Vector3.new(-2500, 132, 1550),
-    ["Lushgrove: Carrot Rod"] = Vector3.new(0, 0, 0) -- Update jika ada koordinat
+    ["Lushgrove: Carrot Rod"] = Vector3.new(0, 0, 0)
 }
 for name, pos in pairs(RodMap) do
     CreateButton(TabRod, "TP: " .. name, function() TweenTP(CFrame.new(pos)) end)
@@ -388,7 +394,6 @@ end
 -- TAB 5: SPECIAL RODS
 local TabSpecial = CreateTab("Special Rods")
 CreateButton(TabSpecial, "[AUTO] Quest Brick Rod", function()
-    -- Logic Quest Brick (Simulasi)
     local locs = {Vector3.new(-1480, 132, 720), Vector3.new(-3150, -100, 2600), Vector3.new(-970, -260, 1330)}
     for i, v in ipairs(locs) do
         StarterGui:SetCore("SendNotification", {Title="Brick Quest", Text="Collecting Brick " .. i, Duration=2})
@@ -435,18 +440,21 @@ CreateInfo(Tab4, "Game:", gameName)
 -- 5. LOGIC ENGINE
 -- =============================================================
 
--- [[ AUTO FISH V3 ]]
+-- [[ AUTO FISH V3: HOLD & RELEASE ]]
 task.spawn(function()
     while true do
-        task.wait(0.1)
+        task.wait(0.2)
         if CONFIG.IsAutoFish then
             local Char = LocalPlayer.Character
             if Char then
                 local Tool = Char:FindFirstChildOfClass("Tool")
+                -- Jika belum melempar (tidak ada bobber)
                 if Tool and not Tool:FindFirstChild("bobber") then
+                    -- 1. Hold Click (Charge Power)
                     VirtualInputManager:SendMouseButtonEvent(0,0,0, true, game, 1)
-                    VirtualInputManager:SendMouseButtonEvent(0,0,0, false, game, 1)
-                    task.wait(1)
+                    task.wait(1.0) -- Tahan 1 detik biar lempar jauh
+                    VirtualInputManager:SendMouseButtonEvent(0,0,0, false, game, 1) -- Lepas
+                    task.wait(1.5) -- Tunggu animasi
                 end
             end
         end
@@ -458,6 +466,7 @@ RunService.Heartbeat:Connect(function()
     local GUI = LocalPlayer:FindFirstChild("PlayerGui")
     if not GUI then return end
 
+    -- 2. AUTO SHAKE
     local ShakeUI = GUI:FindFirstChild("shakeui")
     if ShakeUI and ShakeUI.Enabled then
         local Safe = ShakeUI:FindFirstChild("safezone")
@@ -469,16 +478,21 @@ RunService.Heartbeat:Connect(function()
         end
     end
 
+    -- 3. PERFECT REEL (PRECISION LOGIC)
     local ReelUI = GUI:FindFirstChild("reel")
     if ReelUI and ReelUI.Enabled then
         local Bar = ReelUI:FindFirstChild("bar")
         if Bar then
             local Fish = Bar:FindFirstChild("fish")
             local PlayerBar = Bar:FindFirstChild("playerbar")
+            
             if Fish and PlayerBar then
+                -- Logika Akurasi Tinggi
                 if Fish.Position.X.Scale > PlayerBar.Position.X.Scale then
+                    -- Ikan di kanan: Tahan Spasi
                     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
-                else
+                elseif Fish.Position.X.Scale < PlayerBar.Position.X.Scale then
+                    -- Ikan di kiri: Lepas Spasi (tap cepat biar gak jatuh drastis)
                     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
                 end
             end
@@ -486,33 +500,50 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- [[ SMART TELEPORT MERCHANT ]]
-local function FindMerchant()
+-- [[ SMART AUTO SELL: NEAREST MERCHANT ]]
+local function FindNearestMerchant()
+    local Char = LocalPlayer.Character
+    if not Char then return nil end
+    local Root = Char.HumanoidRootPart
+    
+    local Nearest = nil
+    local MinDist = math.huge
+    
     for _, v in pairs(workspace:GetDescendants()) do
         if v:IsA("Model") and (v.Name == "Merchant" or v.Name == "Marc Merchant") then
-            if v:FindFirstChild("HumanoidRootPart") then return v end
+            if v:FindFirstChild("HumanoidRootPart") then
+                local Dist = (Root.Position - v.HumanoidRootPart.Position).Magnitude
+                if Dist < MinDist then
+                    MinDist = Dist
+                    Nearest = v
+                end
+            end
         end
     end
-    return nil
+    return Nearest
 end
 
 task.spawn(function()
     while true do
         task.wait(0.5)
         if CONFIG.IsAutoSell then
+            -- Save Posisi Awal
             if not CONFIG.SavedPosition and LocalPlayer.Character then
                 CONFIG.SavedPosition = LocalPlayer.Character.HumanoidRootPart.CFrame
             end
             
-            local Merch = FindMerchant()
+            local Merch = FindNearestMerchant()
             if Merch and LocalPlayer.Character then
                 local Root = LocalPlayer.Character.HumanoidRootPart
                 local Dist = (Root.Position - Merch.HumanoidRootPart.Position).Magnitude
+                
+                -- Teleport hanya jika jauh (>10 studs)
                 if Dist > 10 then
                     TweenTP(Merch.HumanoidRootPart.CFrame * CFrame.new(0,0,3))
                 end
             end
         else
+            -- Balik ke Posisi Awal
             if CONFIG.SavedPosition and LocalPlayer.Character then
                 local Root = LocalPlayer.Character.HumanoidRootPart
                 local Dist = (Root.Position - CONFIG.SavedPosition.Position).Magnitude
