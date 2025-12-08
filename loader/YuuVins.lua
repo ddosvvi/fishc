@@ -22,7 +22,6 @@ local CONFIG = {
     IsBypass = true, -- ANTI KICK SERVER ADMIN
     IsAFKLevel = false,
     IsGodMode = false,
-    IsWaterWalk = false,
     IsInfJump = false,   -- Infinite Jump
     IsNoClip = false,
     IsFullBright = false,-- Always Day
@@ -326,7 +325,7 @@ end)
 
 -- TAB 2: AUTO SELL
 local TabSell = CreateTab("Auto Sell")
-CreateToggle(TabSell, "Teleport to Merchant", "ON: Ke Merchant | OFF: Balik", false, function(s) CONFIG.IsAutoSell = s end)
+CreateToggle(TabSell, "Teleport ke Merchant", "ON: Ke Merchant Terdekat | OFF: Balik", false, function(s) CONFIG.IsAutoSell = s end)
 
 -- TAB 3: PULAU (ISLANDS)
 local TabIsland = CreateTab("Pulau & Zone")
@@ -441,17 +440,13 @@ end)
 -- TAB 6: VISUALS (NEW)
 local TabVis = CreateTab("Visuals")
 CreateToggle(TabVis, "Infinite Jump", "Lompat di udara (Spasi)", false, function(s) CONFIG.IsInfJump = s end)
-CreateToggle(TabVis, "Always Day", "Terang terus (Fullbright)", false, function(s) 
-    CONFIG.IsFullBright = s 
-    if not s then Lighting.ClockTime = 12 end -- Reset
-end)
+CreateToggle(TabVis, "Always Day", "Terang Terus (Fullbright)", false, function(s) CONFIG.IsFullBright = s; if not s then Lighting.ClockTime = 12 end end)
 CreateToggle(TabVis, "Vision Mode (NPC)", "Wallhack NPC Rod/Quest", false, function(s) CONFIG.IsVision = s end)
 CreateToggle(TabVis, "ESP Player", "Wallhack Biru Neon", false, function(s) CONFIG.IsESP = s end)
 
 -- TAB 7: SYSTEM
 local TabSys = CreateTab("System")
 CreateToggle(TabSys, "NoClip", "Tembus Tembok, Lantai Aman", false, function(s) CONFIG.IsNoClip = s end)
-CreateToggle(TabSys, "Walk on Water", "Jalan di atas Air", false, function(s) CONFIG.IsWaterWalk = s end)
 CreateToggle(TabSys, "God Mode", "Kebal Lava (Roslit)", false, function(s) CONFIG.IsGodMode = s end)
 CreateToggle(TabSys, "Anti-AFK", "Bypass Idle Kick", true, function(s) CONFIG.IsAntiAFK = s end)
 CreateToggle(TabSys, "Anti-Admin", "Auto Kick jika Staff join", true, function(s) CONFIG.IsBypass = s end)
@@ -463,8 +458,6 @@ local gameName = "Unknown" pcall(function() gameName = MarketplaceService:GetPro
 CreateInfo(TabInfo, "Owner:", "ZAYANGGGGG")
 CreateInfo(TabInfo, "UID:", "1398015808")
 CreateInfo(TabInfo, "Web:", "www.YuuVins.online")
-CreateInfo(TabInfo, "", "")
-CreateInfo(TabInfo, "Ver:", "V9.0.0")
 CreateInfo(TabInfo, "Status:", "PREMIUM ACTIVE PERMANEN")
 CreateInfo(TabInfo, "Executor:", execName)
 
@@ -480,18 +473,12 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
--- [[ FULLBRIGHT (ALWAYS DAY) ]]
-task.spawn(function()
-    while true do
-        task.wait(1)
-        if CONFIG.IsFullBright then
-            Lighting.ClockTime = 12
-            Lighting.Brightness = 2
-            Lighting.GlobalShadows = false
-            Lighting.FogEnd = 100000
-        end
-    end
-end)
+-- Fullbright
+if CONFIG.IsFullBright then
+    Lighting.ClockTime = 12
+    Lighting.Brightness = 2
+    Lighting.GlobalShadows = false
+end
 
 -- [[ AUTO FISH V3 ]]
 task.spawn(function()
@@ -548,27 +535,22 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- [[ SMART TELEPORT ]]
-function TweenTP(cframe)
-    local char = LocalPlayer.Character
-    if not char then return end
-    local root = char.HumanoidRootPart
-    local ti = TweenInfo.new((root.Position - cframe.Position).Magnitude/CONFIG.FlySpeed, Enum.EasingStyle.Linear)
-    local tp = TweenService:Create(root, ti, {CFrame = cframe})
-    local con = RunService.Stepped:Connect(function() 
-        for _,v in pairs(char:GetChildren()) do 
-            if v:IsA("BasePart") then v.CanCollide = false end 
-        end 
-    end)
-    tp:Play()
-    tp.Completed:Wait()
-    con:Disconnect()
-end
-
-local function FindMerchant()
+-- [[ SMART AUTO SELL ]]
+local function FindNearestMerchant()
+    local Char = LocalPlayer.Character
+    if not Char then return nil end
+    local Root = Char.HumanoidRootPart
+    local Nearest = nil
+    local MinDist = math.huge
     for _, v in pairs(workspace:GetDescendants()) do
-        if v.Name == "Merchant" and v:FindFirstChild("HumanoidRootPart") then return v end
+        if v:IsA("Model") and (v.Name == "Merchant" or v.Name == "Marc Merchant") then
+            if v:FindFirstChild("HumanoidRootPart") then
+                local Dist = (Root.Position - v.HumanoidRootPart.Position).Magnitude
+                if Dist < MinDist then MinDist = Dist; Nearest = v end
+            end
+        end
     end
+    return Nearest
 end
 
 task.spawn(function()
@@ -578,17 +560,21 @@ task.spawn(function()
             if not CONFIG.SavedPosition and LocalPlayer.Character then
                 CONFIG.SavedPosition = LocalPlayer.Character.HumanoidRootPart.CFrame
             end
-            local Merch = FindMerchant()
+            local Merch = FindNearestMerchant()
             if Merch and LocalPlayer.Character then
-                local dist = (LocalPlayer.Character.HumanoidRootPart.Position - Merch.HumanoidRootPart.Position).Magnitude
-                if dist > 10 then TweenTP(Merch.HumanoidRootPart.CFrame * CFrame.new(0,0,3)) end
+                local Root = LocalPlayer.Character.HumanoidRootPart
+                local Dist = (Root.Position - Merch.HumanoidRootPart.Position).Magnitude
+                if Dist > 10 then
+                    TweenTP(Merch.HumanoidRootPart.CFrame * CFrame.new(0,0,3))
+                end
             end
         else
             if CONFIG.SavedPosition and LocalPlayer.Character then
-                local dist = (LocalPlayer.Character.HumanoidRootPart.Position - CONFIG.SavedPosition.Position).Magnitude
-                if dist > 10 then 
+                local Root = LocalPlayer.Character.HumanoidRootPart
+                local Dist = (Root.Position - CONFIG.SavedPosition.Position).Magnitude
+                if Dist > 10 then
                     TweenTP(CONFIG.SavedPosition)
-                    CONFIG.SavedPosition = nil 
+                    CONFIG.SavedPosition = nil
                 end
             end
         end
@@ -633,36 +619,6 @@ RunService.Stepped:Connect(function()
     end
 end)
 
--- [[ SYSTEM: WATER WALK & GOD MODE ]]
-local Plat = Instance.new("Part", workspace)
-Plat.Anchored = true; Plat.Transparency = 1; Plat.Size = Vector3.new(10,1,10); Plat.CanCollide = true
-RunService.Heartbeat:Connect(function()
-
-    -- WATER MODE LOGIC
-    if CONFIG.IsWaterWalk then
-        local hum = char:FindFirstChild("Humanoid")
-        if hum then hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false) end
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v.Name == "Water" and v:IsA("BasePart") then
-                v.CanTouch = false 
-                v.CanCollide = true
-            end
-        end
-    end
-    
-    local dist = (root.Position - cframe.Position).Magnitude
-    local time = dist / CONFIG.FlySpeed
-    
-    local ti = TweenInfo.new(time, Enum.EasingStyle.Linear)
-    local tween = TweenService:Create(root, ti, {CFrame = cframe})
-    
-    local conn
-    conn = RunService.Stepped:Connect(function()
-        for _, v in pairs(char:GetChildren()) do
-            if v:IsA("BasePart") then v.CanCollide = false end
-        end
-    end)
-    
     -- GOD MODE LOGIC
     if CONFIG.IsGodMode then
         local hum = char:FindFirstChild("Humanoid")
@@ -687,26 +643,6 @@ RunService.Heartbeat:Connect(function()
             if v:IsA("BasePart") then v.CanCollide = false end
         end
     end)
-)
-
--- Anti Admin
-task.spawn(function()
-    while true do
-        task.wait(5)
-        if CONFIG.IsBypass then
-            for _, p in pairs(Players:GetPlayers()) do
-                if p ~= LocalPlayer then
-                    local s, r = pcall(function() return p:GetRoleInGroup(CONFIG.TargetGroupId) end)
-                    if s and r then
-                        for _, bad in ipairs(CONFIG.Blacklist) do
-                            if r == bad then LocalPlayer:Kick("YuuVins Security: Staff Detected.") end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end)
 
 -- Boot
 task.spawn(function()
@@ -715,3 +651,5 @@ task.spawn(function()
     MainFrame.Size = UDim2.new(0,0,0,0)
     TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Elastic), {Size = UDim2.new(0,600,0,400)}):Play()
 end)
+
+-- OPTIMALKAN EXECUTOR GW , SCRIPT NYA JANGAN ADA YANG DI HAPUS HANYA OPTIMALKAN SAJA AGAR LOAD NYA 
