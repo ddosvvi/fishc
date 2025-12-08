@@ -1,7 +1,7 @@
 -- =============================================================
--- YuuVins Exploids // ULTIMATE V7.2 (PERFECT REEL)
+-- YuuVins Exploids // ULTIMATE V7.3 (FIX AUTO JUMP)
 -- Owner: ZAYANGGGGG
--- Status: UPDATED Logic (Smart Sell & Precision Reel)
+-- Status: BUG FIXED (No More Random Jumping)
 -- =============================================================
 
 local Players = game:GetService("Players")
@@ -62,7 +62,7 @@ end
 task.spawn(function()
     StarterGui:SetCore("SendNotification", {
         Title = "YuuVins Exploids",
-        Text = "Calibrating Reel Logic...",
+        Text = "Fixing Auto Jump Bug...",
         Duration = 2.5,
         Icon = "rbxassetid://16369066601"
     })
@@ -384,8 +384,7 @@ local RodMap = {
     ["Ancient: Forgotten Fang"] = Vector3.new(-3150, -100, 2600),
     ["Deep: Trident & Depths"] = Vector3.new(-970, -260, 1330),
     ["Vertigo: Aurora/Nocturnal"] = Vector3.new(-100, -500, 1000), 
-    ["Forsaken: Scurvy/Sunken"] = Vector3.new(-2500, 132, 1550),
-    ["Lushgrove: Carrot Rod"] = Vector3.new(0, 0, 0)
+    ["Forsaken: Scurvy/Sunken"] = Vector3.new(-2500, 132, 1550)
 }
 for name, pos in pairs(RodMap) do
     CreateButton(TabRod, "TP: " .. name, function() TweenTP(CFrame.new(pos)) end)
@@ -478,7 +477,7 @@ RunService.Heartbeat:Connect(function()
         end
     end
 
-    -- 3. PERFECT REEL (PRECISION LOGIC)
+    -- 3. PERFECT REEL (FIXED AUTO JUMP)
     local ReelUI = GUI:FindFirstChild("reel")
     if ReelUI and ReelUI.Enabled then
         local Bar = ReelUI:FindFirstChild("bar")
@@ -497,6 +496,10 @@ RunService.Heartbeat:Connect(function()
                 end
             end
         end
+    else
+        -- [FIX] FORCE RELEASE SPACE WHEN REEL UI GONE
+        -- Ini mencegah karakter loncat setelah mancing selesai
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
     end
 end)
 
