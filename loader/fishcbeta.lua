@@ -15,7 +15,7 @@ local CONFIG = {
     IsAutoFish = false,
     IsAutoSell = false,    -- Teleport Toggle
     IsESP = false,
-    IsAntiAFK = false,
+    IsAntiAFK = true,
     IsBypass = true,
     
     SavedPosition = nil,   -- Menyimpan lokasi mancing
@@ -308,7 +308,7 @@ CreateToggle(Tab2, "Teleport ke Merchant", "ON: Pindah ke Merchant | OFF: Balik 
 local Tab3 = CreateTab("System")
 CreateToggle(Tab3, "ESP Player", "Wallhack Biru Neon (Box, Line, HP)", false, function(s) CONFIG.IsESP = s end)
 CreateToggle(Tab3, "Anti-AFK 24H", "Bypass Idle Kick (Bisa ditinggal tidur)", false, function(s) CONFIG.IsAntiAFK = s end)
-CreateToggle(Tab3, "Bypass Anti-Admin", "Auto kick jika Staff join", true, function(s) CONFIG.IsBypass = s end)
+CreateToggle(Tab3, "Bypass Anti-BAN", "Auto kick jika Staff join", true, function(s) CONFIG.IsBypass = s end)
 
 -- TAB 4: INFO
 local Tab4 = CreateTab("Info")
@@ -549,4 +549,5 @@ task.spawn(function()
     MainFrame.Size = UDim2.new(0, 0, 0, 0)
     TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 350)}):Play()
 end)
+
 
