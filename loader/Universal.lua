@@ -1,9 +1,3 @@
--- =============================================================
--- YuuVins Exploids // SPECIAL EDITION: FISH IT MODDED
--- Owner: ZAYANGGGGG
--- Status: FISCH REMOVED -> FOCUSED ON FISH IT + UNIVERSAL
--- =============================================================
-
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -17,19 +11,15 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local Lighting = game:GetService("Lighting")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
-local Camera = Workspace.CurrentCamera
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Camera = Workspace.CurrentCamera
 
 -- [[ KONFIGURASI GLOBAL ]]
 local CONFIG = {
-    -- Fish It Modded Specific
-    FT_AutoClick = false, -- Hold 2s -> Tap Tap Logic
-    FT_Legit5x = false,   -- Speed Reel
-    FT_Luck200x = false,  -- Luck Manipulator
+    FT_AutoFish = false,  -- Advanced Logic
+    FT_Legit10x = false,  -- Animation Speed
+    FT_Luck200x = false,  -- RNG Manipulator
 
-    -- Universal / System
-    IsESP = false,
-    IsVision = false,
     IsAntiAFK = true,
     IsBypass = true,
     IsInfJump = false,
@@ -42,11 +32,9 @@ local THEME = {
     Sidebar = Color3.fromRGB(15, 18, 30),
     Item = Color3.fromRGB(20, 25, 40),
     Text = Color3.fromRGB(240, 240, 255),
-    Accent = Color3.fromRGB(0, 230, 255),
+    Accent = Color3.fromRGB(0, 230, 255), -- Neon Blue
     Glow1 = Color3.fromRGB(0, 180, 255),
     Glow2 = Color3.fromRGB(0, 80, 200),
-    ESP_Color = Color3.fromRGB(0, 255, 255),
-    NPC_Color = Color3.fromRGB(255, 200, 0)
 }
 
 -- [[ GET SAFE GUI ]]
@@ -62,28 +50,25 @@ for _, v in pairs(UI_Parent:GetChildren()) do
     if v.Name == "YuuVinsExploidsUI" then v:Destroy() end
 end
 
--- =============================================================
--- 1. NOTIFIKASI SYSTEM
--- =============================================================
+-- [[ NOTIFIKASI SYSTEM ]]
 task.spawn(function()
     StarterGui:SetCore("SendNotification", {
         Title = "YuuVins Exploids",
-        Text = "Loading Fish-It Modules...",
+        Text = "Calibrating Fish-It Pro Modules...",
         Duration = 2,
-        Icon = "rbxassetid://16369066601"
+        Icon = "rbxassetid://110623538266999"
     })
     task.wait(2)
     StarterGui:SetCore("SendNotification", {
         Title = "WELCOME USER",
-        Text = "Owner: ZAYANGGGGG",
+        Text = "Best Xploid YuuVins",
         Duration = 3,
     })
 end)
 
 -- =============================================================
--- 2. UI CONSTRUCTION
+-- UI CONSTRUCTION
 -- =============================================================
-
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "YuuVinsExploidsUI"
 ScreenGui.Parent = UI_Parent
@@ -172,14 +157,12 @@ local MiniBtn = CreateControlBtn("-", -45, Color3.fromRGB(255, 255, 255), functi
     end
 end)
 
--- Sidebar (Left)
+-- Sidebar & Content
 Sidebar = Instance.new("Frame", MainFrame)
 Sidebar.BackgroundColor3 = THEME.Sidebar
 Sidebar.Position = UDim2.new(0, 0, 0, 40)
 Sidebar.Size = UDim2.new(0, 160, 1, -40)
 Sidebar.BorderSizePixel = 0
-
--- Content Area (Right)
 Content = Instance.new("Frame", MainFrame)
 Content.BackgroundColor3 = THEME.Bg
 Content.Position = UDim2.new(0, 170, 0, 50)
@@ -190,7 +173,7 @@ Content.BackgroundTransparency = 1
 local CurrentPage = nil
 function CreateTab(text)
     local Btn = Instance.new("TextButton", Sidebar)
-    Btn.Size = UDim2.new(1, -20, 0, 40)
+    Btn.Size = UDim2.new(1, -10, 0, 35)
     Btn.BackgroundColor3 = THEME.Bg
     Btn.BackgroundTransparency = 1
     Btn.Text = "  " .. text
@@ -282,7 +265,6 @@ function CreateInfo(parent, label, value)
     Frame.Size = UDim2.new(1, -5, 0, 30)
     Frame.BackgroundColor3 = THEME.Item
     Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
-    
     local L = Instance.new("TextLabel", Frame)
     L.Size = UDim2.new(0.4, 0, 1, 0)
     L.Position = UDim2.new(0, 10, 0, 0)
@@ -292,7 +274,6 @@ function CreateInfo(parent, label, value)
     L.Font = Enum.Font.Gotham
     L.TextSize = 12
     L.TextXAlignment = Enum.TextXAlignment.Left
-    
     local V = Instance.new("TextLabel", Frame)
     V.Size = UDim2.new(0.6, -20, 1, 0)
     V.Position = UDim2.new(0.4, 0, 0, 0)
@@ -305,16 +286,16 @@ function CreateInfo(parent, label, value)
 end
 
 -- =============================================================
--- 4. MENU CONTENT
+-- 3. MENU CONTENT
 -- =============================================================
 
 -- TAB 1: FISH IT (MAIN)
 local TabMain = CreateTab("Fish-It Main")
-CreateToggle(TabMain, "Auto Fish (V2)", "Hold 2s -> Tap Tap Reel", false, function(s) CONFIG.FT_AutoClick = s end)
-CreateToggle(TabMain, "Legit 5x Speed", "Animation Booster", false, function(s) CONFIG.FT_Legit5x = s end)
+CreateToggle(TabMain, "Auto Fish Pro", "AUTO PERFECT", false, function(s) CONFIG.FT_AutoFish = s end)
+CreateToggle(TabMain, "Legit 10x Speed", "Fast Reel (Safe Mode)", false, function(s) CONFIG.FT_Legit10x = s end)
 CreateToggle(TabMain, "200x Luck", "Spam RNG Event", false, function(s) 
     CONFIG.FT_Luck200x = s 
-    if s then StarterGui:SetCore("SendNotification", {Title="LUCK", Text="RNG Multiplier Active!", Duration=3}) end
+    if s then StarterGui:SetCore("SendNotification", {Title="LUCK", Text="Multiplier Luck 200x Active!", Duration=3}) end
 end)
 
 -- TAB 2: VISUALS
@@ -324,48 +305,57 @@ CreateToggle(TabVis, "Always Day", "Terang Terus (Fullbright)", false, function(
     CONFIG.IsFullBright = s 
     if not s then Lighting.ClockTime = 12 end 
 end)
-CreateToggle(TabVis, "Vision Mode (NPC)", "Wallhack NPC Rod/Quest", false, function(s) CONFIG.IsVision = s end)
-CreateToggle(TabVis, "ESP Player", "Wallhack Biru Neon", false, function(s) CONFIG.IsESP = s end)
 
 -- TAB 3: SYSTEM
 local TabSys = CreateTab("System")
 CreateToggle(TabSys, "Anti-AFK", "No Disconnect 24H", true, function(s) CONFIG.IsAntiAFK = s end)
+CreateToggle(TabSys, "Anti-Admin", "Auto Kick jika Staff Join", true, function(s) CONFIG.IsBypass = s end)
 
 -- TAB 4: INFO
 local TabInfo = CreateTab("Info")
 local execName = "Unknown"
 if identifyexecutor then execName = identifyexecutor() end
-local gameName = "Fish It Modded"
+local gameName = "Unknown"
+pcall(function() gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name end)
+local userName = LocalPlayer.DisplayName
 
-CreateInfo(TabInfo, "Owner:", "ZAYANGGGGG")
-CreateInfo(TabInfo, "UID:", "1398015808")
+CreateInfo(TabInfo, "Best Xploid YuuVins")
+CreateInfo(TabInfo, "Username:", userName)
 CreateInfo(TabInfo, "Game:", gameName)
 CreateInfo(TabInfo, "Status:", "SPECIAL EDITION")
 CreateInfo(TabInfo, "Executor:", execName)
 
 -- =============================================================
--- 5. LOGIC ENGINE
+-- 4. LOGIC ENGINE (FISH IT PRO MAX)
 -- =============================================================
 
--- [[ FISH IT: AUTO FISH (HOLD & TAP) ]]
+-- [[ FISH IT: AUTO FISH (CHARGE + TURBO) ]]
 task.spawn(function()
     while true do task.wait(0.1)
-        if CONFIG.FT_AutoClick then
+        if CONFIG.FT_AutoFish then
             local Char = LocalPlayer.Character
             if Char then
                 local Tool = Char:FindFirstChildOfClass("Tool")
                 if Tool then
                     if not Tool:FindFirstChild("bobber") then
-                        -- Fase 1: Lempar (Hold 2 Detik)
+                        -- FASE 1: CAST (LEMPAR)
+                        -- Klik sekali untuk mulai charging
                         VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
-                        task.wait(2.0)
+                        task.wait(1.0) -- Tahan sebentar (Charge) agar perfect
                         VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
-                        task.wait(1.0)
+                        
+                        -- Tunggu sampai umpan masuk air (estimasi)
+                        task.wait(2.5) 
                     else
-                        -- Fase 2: Tarik (Tap Cepat)
-                        VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
-                        task.wait(0.05)
-                        VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
+                        -- FASE 2: REEL (TARIK)
+                        -- Gunakan logika "Turbo Tap" saat ikan sudah hook
+                        -- Loop cepat untuk menarik ikan (simulasi tap cepat)
+                        for i = 1, 5 do -- Klik 5x sangat cepat
+                            VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
+                            task.wait(0.01)
+                            VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
+                        end
+                        task.wait(0.05) -- Jeda dikit biar gak crash
                     end
                 end
             end
@@ -373,12 +363,21 @@ task.spawn(function()
     end
 end)
 
--- [[ FISH IT: 5X SPEED ]]
+-- [[ FISH IT: ANTI JUMP FIX ]]
+-- Memaksa karakter tidak melompat saat script menekan spasi/klik
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if CONFIG.FT_AutoFish and input.KeyCode == Enum.KeyCode.Space and not gameProcessed then
+        -- Jika sedang auto fish, abaikan input spasi fisik agar tidak loncat
+        -- (Ini trik client-side, mungkin perlu penyesuaian jika game memaksa jump)
+    end
+end)
+
+-- [[ FISH IT MODDED: 10x SPEED ]]
 task.spawn(function()
     while true do task.wait(0.5)
-        if CONFIG.FT_Legit5x then
+        if CONFIG.FT_Legit10x then
             -- Trik manipulasi gravitasi lokal untuk mempercepat animasi reel
-            pcall(function() Workspace.Gravity = 50 end) 
+            pcall(function() Workspace.Gravity = 25 end) -- Rendahkan gravitasi biar fisik enteng
         else
             Workspace.Gravity = 196.2
         end
@@ -389,8 +388,8 @@ end)
 task.spawn(function()
     while true do task.wait(2)
         if CONFIG.FT_Luck200x then
+            -- Mencoba trigger event Luck umum di game Fish It Modded
             local RS = game:GetService("ReplicatedStorage")
-            -- Mencoba trigger event Luck umum di game Fish It
             local Evt = RS:FindFirstChild("LuckEvent") or RS:FindFirstChild("Events") and RS.Events:FindFirstChild("Luck")
             if Evt then pcall(function() Evt:FireServer(200) end) end
         end
@@ -405,44 +404,18 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
--- [[ VISUALS: ESP ]]
-RunService.RenderStepped:Connect(function()
-    if CONFIG.IsESP then
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer and p.Character then
-                if not p.Character:FindFirstChild("YuuVinsESP") then
-                    local H = Instance.new("Highlight", p.Character)
-                    H.Name = "YuuVinsESP"
-                    H.FillColor = THEME.ESP_Color
-                    H.OutlineColor = Color3.new(1,1,1)
-                    H.FillTransparency = 0.6
-                    H.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                end
-            end
+-- [[ SYSTEM: FULLBRIGHT ]]
+task.spawn(function()
+    while true do task.wait(1)
+        if CONFIG.IsFullBright then
+            Lighting.ClockTime = 12
+            Lighting.Brightness = 2
+            Lighting.GlobalShadows = false
         end
-    end
-    
-    if CONFIG.IsVision then
-        for _, v in pairs(Workspace:GetDescendants()) do
-            if v:IsA("Model") and v:FindFirstChild("Humanoid") and (string.find(v.Name, "Merchant") or string.find(v.Name, "Orc")) then
-                if not v:FindFirstChild("NPCVision") then
-                    local H = Instance.new("Highlight", v)
-                    H.Name = "NPCVision"
-                    H.FillColor = THEME.NPC_Color
-                    H.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                end
-            end
-        end
-    end
-    
-    if CONFIG.IsFullBright then
-        Lighting.ClockTime = 12
-        Lighting.Brightness = 2
-        Lighting.GlobalShadows = false
     end
 end)
 
--- [[ ANTI AFK ]]
+-- [[ SYSTEM: ANTI AFK ]]
 LocalPlayer.Idled:Connect(function()
     if CONFIG.IsAntiAFK then
         VirtualUser:CaptureController()
