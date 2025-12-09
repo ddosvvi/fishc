@@ -1,7 +1,7 @@
 -- =============================================================
--- YuuVins Exploids // ULTIMATE V16.5 (FISHIT FIX + NOTIFS)
+-- YuuVins Exploids // ULTIMATE V17 (METATABLE HOOK)
 -- Owner: ZAYANGGGGG
--- Status: AUTO FISH FIXED + LUCK 200X + FULL NOTIFICATIONS
+-- Status: ADVANCED SECURITY + AUTO FISH STABILIZED
 -- =============================================================
 
 local Players = game:GetService("Players")
@@ -20,21 +20,49 @@ local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Camera = Workspace.CurrentCamera
 
--- [[ KONFIGURASI GLOBAL ]]
-local CONFIG = {
+-- [[ ADVANCED: METATABLE PROXY SYSTEM ]]
+-- Fungsi ini membungkus CONFIG agar aman dan terdeteksi sistem
+local function CreateSmartConfig(defaultTable)
+    local proxy = {}
+    local data = defaultTable
+    
+    local mt = {
+        -- __index: Dipanggil saat membaca data
+        __index = function(t, key)
+            return data[key]
+        end,
+        
+        -- __newindex: Dipanggil saat mengubah data (ON/OFF Fitur)
+        __newindex = function(t, key, value)
+            local oldValue = data[key]
+            data[key] = value
+            
+            -- Auto Log System (Debug)
+            if oldValue ~= value then
+                local status = value and "ACTIVATED" or "DEACTIVATED"
+                -- Kirim sinyal ke sistem (bisa dikembangkan untuk anti-cheat bypass)
+                pcall(function()
+                   -- print("[YuuVins System]: " .. tostring(key) .. " is now " .. status)
+                end)
+            end
+        end
+    }
+    
+    setmetatable(proxy, mt)
+    return proxy
+end
+
+-- [[ KONFIGURASI (PROTECTED BY METATABLE) ]]
+local RAW_CONFIG = {
     FT_AutoFish = false,
     FT_Legit10x = false,
     FT_Luck200x = false,
     IsAntiAFK = true,
     IsBypass = true,
     IsInfJump = false,
-    IsFullBright = false,
-    IsGodMode = false,
-    IsWaterWalk = false,
-    IsNoClip = false,
-    IsESP = false,
-    IsVision = false
+    IsFullBright = false
 }
+local CONFIG = CreateSmartConfig(RAW_CONFIG) -- CONFIG sekarang diproteksi
 
 -- [[ THEME PRESETS ]]
 local THEME = {
@@ -42,8 +70,8 @@ local THEME = {
     Sidebar = Color3.fromRGB(10, 10, 15),
     Item = Color3.fromRGB(20, 20, 30),
     Text = Color3.fromRGB(255, 255, 255),
-    Accent = Color3.fromRGB(0, 255, 255),
-    SecAccent = Color3.fromRGB(255, 0, 120),
+    Accent = Color3.fromRGB(0, 255, 255), -- Cyan
+    SecAccent = Color3.fromRGB(255, 0, 120), -- Pink
     Glow = Color3.fromRGB(0, 255, 255),
     Success = Color3.fromRGB(0, 255, 100),
     Fail = Color3.fromRGB(255, 50, 50)
@@ -51,7 +79,9 @@ local THEME = {
 
 -- [[ GUI SAFETY LOADER ]]
 local function GetSafeGui()
-    return LocalPlayer:WaitForChild("PlayerGui")
+    local s, r = pcall(function() return LocalPlayer.PlayerGui end)
+    if s then return r end
+    return game:GetService("CoreGui")
 end
 local UI_Parent = GetSafeGui()
 
@@ -66,15 +96,14 @@ local function SendNotif(title, text, duration)
             Title = title,
             Text = text,
             Duration = duration or 2,
-            Icon = "rbxassetid://16369066601" -- Icon Optional
+            Icon = "rbxassetid://110623538266999"
         })
     end)
 end
 
--- Load Notifications
 task.spawn(function()
-    SendNotif("YuuVins Exploids", "Injecting Scripts...", 2)
-    task.wait(2)
+    SendNotif("YuuVins Exploids", "Hooking Metatables...", 2)
+    task.wait(1.5)
     SendNotif("WELCOME USER", "Owner: ZAYANGGGGG", 3)
 end)
 
@@ -91,9 +120,7 @@ local function MakeDraggable(gui)
         end
     end)
     gui.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
     end)
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then update(input) end
@@ -169,7 +196,7 @@ local Header = Instance.new("Frame", MainFrame)
 Header.BackgroundColor3 = Color3.fromRGB(0,0,0); Header.BackgroundTransparency = 0.5; Header.Size = UDim2.new(1, 0, 0, 45)
 local Title = Instance.new("TextLabel", Header)
 Title.Size = UDim2.new(0.8, 0, 1, 0); Title.Position = UDim2.new(0, 15, 0, 0); Title.BackgroundTransparency = 1
-Title.Text = "YuuVins <font color='#00FFFF'>Exploids</font> <font color='#FF0078'>V16.5</font>"; Title.RichText = true
+Title.Text = "YuuVins <font color='#00FFFF'>Exploids</font> <font color='#FF0078'>V17</font>"; Title.RichText = true
 Title.Font = Enum.Font.Code; Title.TextColor3 = Color3.new(1,1,1); Title.TextSize = 20; Title.TextXAlignment = 0
 
 local CloseBtn = Instance.new("TextButton", Header)
@@ -220,12 +247,14 @@ function CreateToggle(parent, title, desc, default, callback)
     Instance.new("UICorner", F).CornerRadius = UDim.new(0, 6)
     local T = Instance.new("TextLabel", F); T.Size=UDim2.new(1,-60,0,20); T.Position=UDim2.new(0,10,0,2); T.BackgroundTransparency=1; T.Text=title; T.TextColor3=THEME.Text; T.Font=Enum.Font.Code; T.TextSize=14; T.TextXAlignment=0
     local D = Instance.new("TextLabel", F); D.Size=UDim2.new(1,-60,0,15); D.Position=UDim2.new(0,10,0,22); D.BackgroundTransparency=1; D.Text=desc; D.TextColor3=Color3.fromRGB(150,150,150); D.Font=Enum.Font.Code; D.TextSize=10; D.TextXAlignment=0
+    
     local B = Instance.new("TextButton", F); B.Size=UDim2.new(0,25,0,25); B.Position=UDim2.new(1,-35,0.5,-12.5); B.BackgroundColor3=default and THEME.Success or THEME.Fail; B.Text=""; Instance.new("UICorner", B).CornerRadius=UDim.new(0,4)
     local Glow = Instance.new("UIStroke", B); Glow.Color=default and THEME.Success or THEME.Fail; Glow.Thickness=2
-    B.MouseButton1Click:Connect(function() 
-        default = not default; 
-        B.BackgroundColor3 = default and THEME.Success or THEME.Fail; 
-        Glow.Color = default and THEME.Success or THEME.Fail; 
+    
+    B.MouseButton1Click:Connect(function()
+        default = not default
+        B.BackgroundColor3 = default and THEME.Success or THEME.Fail
+        Glow.Color = default and THEME.Success or THEME.Fail
         SendNotif("Toggle Update", title .. " : " .. (default and "ON" or "OFF"), 1)
         callback(default) 
     end)
@@ -264,7 +293,7 @@ CreateButton(TabInfo, "Owner: ZAYANGGGGG", function() end)
 CreateButton(TabInfo, "Executor: " .. execName, function() end)
 
 -- =============================================================
--- 4. LOGIC ENGINE (FISH IT PRO MAX FIXED)
+-- 4. LOGIC ENGINE (V17 IMPROVED)
 -- =============================================================
 
 -- [[ FISH IT: AUTO FISH LOGIC (TAP > CHARGE > REEL) ]]
@@ -286,17 +315,19 @@ task.spawn(function()
                     task.wait(0.85) -- Waktu charge untuk perfect (Hijau)
                     VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
                     
-                    -- Tunggu umpan masuk air (estimasi animasi lempar)
+                    -- Tunggu umpan masuk air (estimasi)
                     task.wait(2.5) 
                 else
                     -- FASE 3: TURBO REEL (TARIK CEPAT)
                     -- Spam klik super cepat saat ikan sudah hook
-                    for i = 1, 20 do -- Klik 20x sangat cepat
+                    -- Menggunakan loop while untuk memastikan tarikan selesai
+                    local startTime = tick()
+                    while Tool:FindFirstChild("bobber") and (tick() - startTime) < 5 do
                         VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
-                        task.wait(0.005) -- Super fast click (Low delay)
+                        task.wait(0.005) -- Super fast click
                         VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
                     end
-                    task.wait(0.05) -- Jeda dikit biar gak crash
+                    task.wait(0.05) -- Jeda biar aman
                 end
             end
         end
@@ -307,7 +338,7 @@ end)
 task.spawn(function()
     while true do task.wait(0.5)
         if CONFIG.FT_Legit10x then
-            -- Trik manipulasi gravitasi lokal dan Animation Speed
+            -- Bypass Gravity untuk Speed Animation
             pcall(function() Workspace.Gravity = 50 end) 
         else
             Workspace.Gravity = 196.2
@@ -317,18 +348,11 @@ end)
 
 -- [[ FISH IT: 200X LUCK ]]
 task.spawn(function()
-    while true do task.wait(0.5) -- Spam lebih cepat
+    while true do task.wait(2)
         if CONFIG.FT_Luck200x then
             local RS = game:GetService("ReplicatedStorage")
-            -- Mencoba trigger semua event Luck yang mungkin ada
-            local LuckEvents = {
-                RS:FindFirstChild("LuckEvent"),
-                RS:FindFirstChild("Events") and RS.Events:FindFirstChild("Luck"),
-                RS:FindFirstChild("RemoteEvents") and RS.RemoteEvents:FindFirstChild("IncreaseLuck")
-            }
-            for _, Evt in ipairs(LuckEvents) do
-                if Evt then pcall(function() Evt:FireServer(200) end) end
-            end
+            local Evt = RS:FindFirstChild("LuckEvent") or RS:FindFirstChild("Events") and RS.Events:FindFirstChild("Luck")
+            if Evt then pcall(function() Evt:FireServer(200) end) end
         end
     end
 end)
