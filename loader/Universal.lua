@@ -1,9 +1,3 @@
--- =============================================================
--- YuuVins Exploids // ULTIMATE V14 (MODDED SUPPORT)
--- Owner: ZAYANGGGGG
--- Status: FISCH + FISHIT MODDED (LEGIT 5X + 200X LUCK)
--- =============================================================
-
 -- [[ SERVICES ]]
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
