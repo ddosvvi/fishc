@@ -1,7 +1,7 @@
 -- =============================================================
--- YuuVins Exploids // ULTIMATE V16.5 (FISHIT PRO)
+-- YuuVins Exploids // ULTIMATE V16.5 (FISHIT FIX + NOTIFS)
 -- Owner: ZAYANGGGGG
--- Status: MOBILE/PC SYNC + PERFECT CHARGE + TURBO REEL
+-- Status: AUTO FISH FIXED + LUCK 200X + FULL NOTIFICATIONS
 -- =============================================================
 
 local Players = game:GetService("Players")
@@ -58,6 +58,25 @@ local UI_Parent = GetSafeGui()
 for _, v in pairs(UI_Parent:GetChildren()) do
     if v.Name == "YuuVinsCyber" or v.Name == "YuuVinsToggle" then v:Destroy() end
 end
+
+-- [[ NOTIFIKASI SYSTEM ]]
+local function SendNotif(title, text, duration)
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = title,
+            Text = text,
+            Duration = duration or 2,
+            Icon = "rbxassetid://16369066601" -- Icon Optional
+        })
+    end)
+end
+
+-- Load Notifications
+task.spawn(function()
+    SendNotif("YuuVins Exploids", "Injecting Scripts...", 2)
+    task.wait(2)
+    SendNotif("WELCOME USER", "Owner: ZAYANGGGGG", 3)
+end)
 
 local function MakeDraggable(gui)
     local dragging, dragInput, dragStart, startPos
@@ -116,6 +135,7 @@ task.spawn(function()
     LoadFrame:TweenPosition(UDim2.new(0, 0, -1.5, 0), "Out", "Quart", 0.5, true)
     task.wait(0.5)
     LoadFrame.Visible = false
+    SendNotif("System", "Menu Loaded Successfully!", 3)
 end)
 
 -- =============================================================
@@ -156,7 +176,10 @@ local CloseBtn = Instance.new("TextButton", Header)
 CloseBtn.Size = UDim2.new(0, 35, 0, 35); CloseBtn.Position = UDim2.new(1, -40, 0.5, -17.5)
 CloseBtn.BackgroundColor3 = THEME.Fail; CloseBtn.Text = "X"; CloseBtn.Font = Enum.Font.Code; CloseBtn.TextColor3 = Color3.new(1,1,1)
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
-CloseBtn.MouseButton1Click:Connect(function() TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)}):Play() end)
+CloseBtn.MouseButton1Click:Connect(function() 
+    TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)}):Play()
+    SendNotif("System", "Menu Minimized", 2)
+end)
 
 local ToggleGui = Instance.new("ScreenGui", UI_Parent)
 ToggleGui.Name = "YuuVinsToggle"
@@ -164,7 +187,10 @@ local ToggleBtn = Instance.new("TextButton", ToggleGui)
 ToggleBtn.Size = UDim2.new(0, 50, 0, 50); ToggleBtn.Position = UDim2.new(0.1, 0, 0.2, 0); ToggleBtn.BackgroundColor3 = THEME.Bg; ToggleBtn.Text = "Y"; ToggleBtn.TextColor3 = THEME.Accent; ToggleBtn.Font = Enum.Font.Code; ToggleBtn.TextSize = 25
 Instance.new("UIStroke", ToggleBtn).Color = THEME.SecAccent; Instance.new("UIStroke", ToggleBtn).Thickness = 2; Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
 MakeDraggable(ToggleBtn)
-ToggleBtn.MouseButton1Click:Connect(function() TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Elastic), {Size = UDim2.new(0, 550, 0, 350)}):Play() end)
+ToggleBtn.MouseButton1Click:Connect(function() 
+    TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Elastic), {Size = UDim2.new(0, 550, 0, 350)}):Play() 
+    SendNotif("System", "Menu Opened", 2)
+end)
 
 local Sidebar = Instance.new("Frame", MainFrame)
 Sidebar.BackgroundColor3 = THEME.Sidebar; Sidebar.Position = UDim2.new(0, 0, 0, 45); Sidebar.Size = UDim2.new(0, 150, 1, -45); Sidebar.BorderSizePixel = 0
@@ -190,18 +216,29 @@ function CreateTab(text)
 end
 
 function CreateToggle(parent, title, desc, default, callback)
-    local F = Instance.new("Frame", parent); F.Size = UDim2.new(1, -10, 0, 45); F.BackgroundColor3 = THEME.Item; Instance.new("UICorner", F).CornerRadius = UDim.new(0, 6)
+    local F = Instance.new("Frame", parent); F.Size = UDim2.new(1, -10, 0, 45); F.BackgroundColor3 = THEME.Item
+    Instance.new("UICorner", F).CornerRadius = UDim.new(0, 6)
     local T = Instance.new("TextLabel", F); T.Size=UDim2.new(1,-60,0,20); T.Position=UDim2.new(0,10,0,2); T.BackgroundTransparency=1; T.Text=title; T.TextColor3=THEME.Text; T.Font=Enum.Font.Code; T.TextSize=14; T.TextXAlignment=0
     local D = Instance.new("TextLabel", F); D.Size=UDim2.new(1,-60,0,15); D.Position=UDim2.new(0,10,0,22); D.BackgroundTransparency=1; D.Text=desc; D.TextColor3=Color3.fromRGB(150,150,150); D.Font=Enum.Font.Code; D.TextSize=10; D.TextXAlignment=0
     local B = Instance.new("TextButton", F); B.Size=UDim2.new(0,25,0,25); B.Position=UDim2.new(1,-35,0.5,-12.5); B.BackgroundColor3=default and THEME.Success or THEME.Fail; B.Text=""; Instance.new("UICorner", B).CornerRadius=UDim.new(0,4)
     local Glow = Instance.new("UIStroke", B); Glow.Color=default and THEME.Success or THEME.Fail; Glow.Thickness=2
-    B.MouseButton1Click:Connect(function() default = not default; B.BackgroundColor3 = default and THEME.Success or THEME.Fail; Glow.Color = default and THEME.Success or THEME.Fail; callback(default) end)
+    B.MouseButton1Click:Connect(function() 
+        default = not default; 
+        B.BackgroundColor3 = default and THEME.Success or THEME.Fail; 
+        Glow.Color = default and THEME.Success or THEME.Fail; 
+        SendNotif("Toggle Update", title .. " : " .. (default and "ON" or "OFF"), 1)
+        callback(default) 
+    end)
 end
 
 function CreateButton(parent, text, callback)
     local B = Instance.new("TextButton", parent); B.Size=UDim2.new(1, -10, 0, 35); B.BackgroundColor3 = THEME.Item; B.Text = "> " .. text; B.TextColor3 = THEME.Text; B.Font = Enum.Font.Code; B.TextSize = 13
     Instance.new("UICorner", B).CornerRadius = UDim.new(0, 6); local S = Instance.new("UIStroke", B); S.Color=THEME.Accent; S.Thickness=1; S.ApplyStrokeMode="Border"
-    B.MouseButton1Click:Connect(function() S.Thickness = 3; task.wait(0.1); S.Thickness = 1; callback() end)
+    B.MouseButton1Click:Connect(function() 
+        S.Thickness = 3; task.wait(0.1); S.Thickness = 1; 
+        SendNotif("Action", text .. " Clicked", 1)
+        callback() 
+    end)
 end
 
 -- =============================================================
@@ -227,42 +264,39 @@ CreateButton(TabInfo, "Owner: ZAYANGGGGG", function() end)
 CreateButton(TabInfo, "Executor: " .. execName, function() end)
 
 -- =============================================================
--- 4. LOGIC ENGINE (FISH IT PRO MAX)
+-- 4. LOGIC ENGINE (FISH IT PRO MAX FIXED)
 -- =============================================================
 
--- [[ FISH IT: AUTO FISH (TAP > CHARGE > REEL) ]]
+-- [[ FISH IT: AUTO FISH LOGIC (TAP > CHARGE > REEL) ]]
 task.spawn(function()
-    while true do
-        task.wait(0.1)
+    while true do task.wait(0.1)
         if CONFIG.FT_AutoFish and LocalPlayer.Character then
             local Tool = LocalPlayer.Character:FindFirstChildOfClass("Tool")
             if Tool then
-                -- Fase 1: Lempar (Cast)
                 if not Tool:FindFirstChild("bobber") then
-                    -- Klik sekali untuk TAP (Start)
+                    -- FASE 1: CAST (LEMPAR)
                     VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
                     task.wait(0.1)
                     VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
                     
                     task.wait(0.5) -- Delay animasi angkat rod
                     
-                    -- Fase 2: Charge Perfect
-                    -- Tahan klik untuk mengisi bar
+                    -- FASE 2: CHARGE PERFECT
                     VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
-                    task.wait(0.85) -- Waktu charge (Sesuaikan jika kurang perfect)
+                    task.wait(0.85) -- Waktu charge untuk perfect (Hijau)
                     VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
                     
-                    -- Tunggu umpan masuk air
+                    -- Tunggu umpan masuk air (estimasi animasi lempar)
                     task.wait(2.5) 
                 else
-                    -- Fase 3: Turbo Reel (Tarik Cepat)
-                    -- Spam klik saat ikan sudah hook
-                    for i = 1, 10 do -- Klik 10x sangat cepat
+                    -- FASE 3: TURBO REEL (TARIK CEPAT)
+                    -- Spam klik super cepat saat ikan sudah hook
+                    for i = 1, 20 do -- Klik 20x sangat cepat
                         VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
-                        task.wait(0.01) -- Super fast click
+                        task.wait(0.005) -- Super fast click (Low delay)
                         VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
                     end
-                    task.wait(0.1) -- Jeda agar tidak crash
+                    task.wait(0.05) -- Jeda dikit biar gak crash
                 end
             end
         end
@@ -273,6 +307,7 @@ end)
 task.spawn(function()
     while true do task.wait(0.5)
         if CONFIG.FT_Legit10x then
+            -- Trik manipulasi gravitasi lokal dan Animation Speed
             pcall(function() Workspace.Gravity = 50 end) 
         else
             Workspace.Gravity = 196.2
@@ -282,11 +317,18 @@ end)
 
 -- [[ FISH IT: 200X LUCK ]]
 task.spawn(function()
-    while true do task.wait(2)
+    while true do task.wait(0.5) -- Spam lebih cepat
         if CONFIG.FT_Luck200x then
             local RS = game:GetService("ReplicatedStorage")
-            local Evt = RS:FindFirstChild("LuckEvent") or RS:FindFirstChild("Events") and RS.Events:FindFirstChild("Luck")
-            if Evt then pcall(function() Evt:FireServer(200) end) end
+            -- Mencoba trigger semua event Luck yang mungkin ada
+            local LuckEvents = {
+                RS:FindFirstChild("LuckEvent"),
+                RS:FindFirstChild("Events") and RS.Events:FindFirstChild("Luck"),
+                RS:FindFirstChild("RemoteEvents") and RS.RemoteEvents:FindFirstChild("IncreaseLuck")
+            }
+            for _, Evt in ipairs(LuckEvents) do
+                if Evt then pcall(function() Evt:FireServer(200) end) end
+            end
         end
     end
 end)
@@ -314,8 +356,9 @@ end)
 -- [[ SYSTEM: ANTI JUMP FIX ]]
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if CONFIG.FT_AutoFish and input.KeyCode == Enum.KeyCode.Space then
-        -- Mencegah lompat manual saat auto fish aktif
-        -- (Hanya safety measure, logic utama ada di Auto Fish)
+        -- Mencegah karakter loncat saat auto fish aktif
+        -- Mematikan input spasi secara paksa di client
+        return Enum.ContextActionResult.Sink
     end
 end)
 
