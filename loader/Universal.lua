@@ -1,3 +1,10 @@
+-- =============================================================
+-- YuuVins Exploids // ULTIMATE V16 (CYBERPUNK MOBILE)
+-- Owner: ZAYANGGGGG
+-- Status: MOBILE FIXED + CYBER THEME + FISHIT PRO
+-- =============================================================
+
+-- [[ SERVICES ]]
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -20,196 +27,181 @@ local CONFIG = {
     FT_Legit10x = false,
     FT_Luck200x = false,
     IsAntiAFK = true,
+    IsBypass = true,
     IsInfJump = false,
-    IsFullBright = false
+    IsFullBright = false,
+    IsGodMode = false,
+    IsWaterWalk = false,
+    IsNoClip = false,
+    IsESP = false,
+    IsVision = false
 }
 
--- [[ THEME PRESETS ]]
+-- [[ CYBERPUNK THEME ]]
 local THEME = {
-    Bg = Color3.fromRGB(10, 12, 20),
-    Sidebar = Color3.fromRGB(15, 18, 30),
-    Item = Color3.fromRGB(20, 25, 40),
-    Text = Color3.fromRGB(240, 240, 255),
-    Accent = Color3.fromRGB(0, 230, 255),
-    Glow1 = Color3.fromRGB(0, 180, 255),
-    Glow2 = Color3.fromRGB(0, 80, 200),
+    Bg = Color3.fromRGB(5, 5, 10), -- Deep Dark
+    Sidebar = Color3.fromRGB(10, 10, 15),
+    Item = Color3.fromRGB(20, 20, 30),
+    Text = Color3.fromRGB(255, 255, 255),
+    Accent = Color3.fromRGB(0, 255, 255), -- Neon Cyan
+    SecAccent = Color3.fromRGB(255, 0, 120), -- Neon Pink
+    Glow = Color3.fromRGB(0, 255, 255),
+    Success = Color3.fromRGB(0, 255, 100),
+    Fail = Color3.fromRGB(255, 50, 50)
 }
 
--- [[ GUI SAFE LOADER ]]
+-- [[ GUI SAFETY LOADER (MOBILE FIX) ]]
 local function GetSafeGui()
-    local s, h = pcall(function() return gethui() end)
-    if s and h then return h end
-    return game:GetService("CoreGui") or LocalPlayer:WaitForChild("PlayerGui")
+    -- Prioritas PlayerGui untuk Mobile (Lebih Stabil)
+    return LocalPlayer:WaitForChild("PlayerGui")
 end
 local UI_Parent = GetSafeGui()
 
+-- Cleanup Old UI
 for _, v in pairs(UI_Parent:GetChildren()) do
-    if v.Name == "YuuVinsExploidsUI" or v.Name == "YuuVinsLoading" then v:Destroy() end
+    if v.Name == "YuuVinsCyber" or v.Name == "YuuVinsToggle" then v:Destroy() end
+end
+
+-- [[ DRAGGABLE FUNCTION (MOBILE SUPPORT) ]]
+local function MakeDraggable(gui)
+    local dragging, dragInput, dragStart, startPos
+    local function update(input)
+        local delta = input.Position - dragStart
+        gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+    gui.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true; dragStart = input.Position; startPos = gui.Position
+            input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
+        end
+    end)
+    gui.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then update(input) end
+    end)
 end
 
 -- =============================================================
--- 1. LOADING SCREEN (ANIMATED 0-100%)
+-- 1. LOADING SCREEN (CYBER STYLE)
 -- =============================================================
-local LoadScreen = Instance.new("ScreenGui", UI_Parent)
-LoadScreen.Name = "YuuVinsLoading"
-LoadScreen.IgnoreGuiInset = true
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "YuuVinsCyber"
+ScreenGui.Parent = UI_Parent
+ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
 
-local LoadFrame = Instance.new("Frame", LoadScreen)
+local LoadFrame = Instance.new("Frame", ScreenGui)
 LoadFrame.Size = UDim2.new(1, 0, 1, 0)
 LoadFrame.BackgroundColor3 = THEME.Bg
-LoadFrame.ZIndex = 999
+LoadFrame.ZIndex = 100
 
 local LoadTitle = Instance.new("TextLabel", LoadFrame)
 LoadTitle.Size = UDim2.new(1, 0, 0.2, 0)
-LoadTitle.Position = UDim2.new(0, 0, 0.3, 0)
+LoadTitle.Position = UDim2.new(0, 0, 0.4, 0)
 LoadTitle.BackgroundTransparency = 1
-LoadTitle.Text = "YuuVins Exploids"
-LoadTitle.Font = Enum.Font.GothamBlack
+LoadTitle.Text = "YuuVins // SYSTEM_BOOT"
+LoadTitle.Font = Enum.Font.Code
 LoadTitle.TextColor3 = THEME.Accent
-LoadTitle.TextSize = 40
+LoadTitle.TextSize = 35
 
-local LoadBarBg = Instance.new("Frame", LoadFrame)
-LoadBarBg.Size = UDim2.new(0.6, 0, 0.02, 0)
-LoadBarBg.Position = UDim2.new(0.2, 0, 0.5, 0)
-LoadBarBg.BackgroundColor3 = THEME.Item
-Instance.new("UICorner", LoadBarBg).CornerRadius = UDim.new(1, 0)
-
-local LoadBarFill = Instance.new("Frame", LoadBarBg)
-LoadBarFill.Size = UDim2.new(0, 0, 1, 0)
-LoadBarFill.BackgroundColor3 = THEME.Accent
-Instance.new("UICorner", LoadBarFill).CornerRadius = UDim.new(1, 0)
-
-local LoadPercent = Instance.new("TextLabel", LoadFrame)
-LoadPercent.Size = UDim2.new(1, 0, 0.1, 0)
-LoadPercent.Position = UDim2.new(0, 0, 0.55, 0)
-LoadPercent.BackgroundTransparency = 1
-LoadPercent.Text = "0%"
-LoadPercent.TextColor3 = Color3.fromRGB(200,200,200)
-LoadPercent.Font = Enum.Font.GothamBold
-LoadPercent.TextSize = 20
+local LoadBar = Instance.new("Frame", LoadFrame)
+LoadBar.Size = UDim2.new(0, 0, 0.01, 0)
+LoadBar.Position = UDim2.new(0.2, 0, 0.6, 0)
+LoadBar.BackgroundColor3 = THEME.SecAccent
+LoadBar.BorderSizePixel = 0
 
 -- Animasi Loading
-spawn(function()
-    for i = 1, 100 do
-        LoadBarFill:TweenSize(UDim2.new(i/100, 0, 1, 0), "Out", "Quad", 0.02, true)
-        LoadPercent.Text = "Loading Assets... " .. i .. "%"
-        task.wait(0.015) -- Kecepatan loading
-    end
-    LoadPercent.Text = "Injecting Modules..."
+task.spawn(function()
+    LoadBar:TweenSize(UDim2.new(0.6, 0, 0.01, 0), "Out", "Quint", 2, true)
+    task.wait(2.2)
+    LoadFrame:TweenPosition(UDim2.new(0, 0, -1.5, 0), "Out", "Quart", 0.5, true)
     task.wait(0.5)
-    TweenService:Create(LoadFrame, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
-    TweenService:Create(LoadTitle, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-    TweenService:Create(LoadBarBg, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
-    TweenService:Create(LoadBarFill, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
-    TweenService:Create(LoadPercent, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
-    task.wait(0.6)
-    LoadScreen:Destroy()
+    LoadFrame.Visible = false
 end)
 
 -- =============================================================
--- 2. UI MAIN SYSTEM
+-- 2. MAIN UI (CYBERPUNK)
 -- =============================================================
 
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "YuuVinsExploidsUI"
-ScreenGui.Parent = UI_Parent
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Enabled = false 
-
-local MainFrame = Instance.new("Frame")
+local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Name = "MainFrame"
-MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = THEME.Bg
-MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
-MainFrame.Size = UDim2.new(0, 600, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -275, 0.5, -175)
+MainFrame.Size = UDim2.new(0, 0, 0, 0) -- Start Kecil (Animasi)
 MainFrame.ClipsDescendants = true
 MainFrame.Active = true
-MainFrame.Draggable = true
+MakeDraggable(MainFrame)
 
--- Glow Border
-local Stroke = Instance.new("UIStroke", MainFrame)
-Stroke.Thickness = 2
-Stroke.Transparency = 0
-local UIGradient = Instance.new("UIGradient", Stroke)
+-- Border Gradient
+local UIStroke = Instance.new("UIStroke", MainFrame)
+UIStroke.Thickness = 3
+local UIGradient = Instance.new("UIGradient", UIStroke)
 UIGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0.00, THEME.Glow1),
-    ColorSequenceKeypoint.new(1.00, THEME.Glow2)
+    ColorSequenceKeypoint.new(0.00, THEME.Accent),
+    ColorSequenceKeypoint.new(0.50, THEME.SecAccent),
+    ColorSequenceKeypoint.new(1.00, THEME.Accent)
 }
 UIGradient.Rotation = 45
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
--- Header
-local Header = Instance.new("Frame", MainFrame)
-Header.Name = "Header"
-Header.BackgroundColor3 = Color3.fromRGB(0,0,0)
-Header.BackgroundTransparency = 0.8
-Header.Size = UDim2.new(1, 0, 0, 40)
-
-local Logo = Instance.new("TextLabel", Header)
-Logo.Size = UDim2.new(0, 200, 1, 0)
-Logo.Position = UDim2.new(0, 15, 0, 0)
-Logo.BackgroundTransparency = 1
-Logo.Text = "YuuVins Exploids"
-Logo.Font = Enum.Font.GothamBlack
-Logo.TextColor3 = THEME.Accent
-Logo.TextSize = 18
-Logo.TextXAlignment = Enum.TextXAlignment.Left
-
--- Sidebar & Content
-local Sidebar = Instance.new("Frame", MainFrame)
-Sidebar.BackgroundColor3 = THEME.Sidebar
-Sidebar.Position = UDim2.new(0, 0, 0, 40)
-Sidebar.Size = UDim2.new(0, 160, 1, -40)
-Sidebar.BorderSizePixel = 0
-
-local Content = Instance.new("Frame", MainFrame)
-Content.BackgroundColor3 = THEME.Bg
-Content.Position = UDim2.new(0, 170, 0, 50)
-Content.Size = UDim2.new(1, -180, 1, -60)
-Content.BackgroundTransparency = 1
-
--- Animation Loop (Lightweight)
+-- Rotate Gradient Loop
 task.spawn(function()
     while MainFrame.Parent do
-        local t = TweenService:Create(UIGradient, TweenInfo.new(3, Enum.EasingStyle.Linear), {Rotation = 360 + 45})
-        t:Play() t.Completed:Wait()
+        local t = TweenService:Create(UIGradient, TweenInfo.new(2, Enum.EasingStyle.Linear), {Rotation = 405})
+        t:Play(); t.Completed:Wait()
         UIGradient.Rotation = 45
     end
 end)
 
--- Minimize Logic
-local IsMinimized = false
-local function ToggleMinimize()
-    IsMinimized = not IsMinimized
-    if IsMinimized then
-        TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 600, 0, 40)}):Play()
-        Sidebar.Visible = false
-        Content.Visible = false
-    else
-        TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 600, 0, 400)}):Play()
-        task.wait(0.3)
-        Sidebar.Visible = true
-        Content.Visible = true
-    end
-end
+-- Header
+local Header = Instance.new("Frame", MainFrame)
+Header.BackgroundColor3 = Color3.fromRGB(0,0,0); Header.BackgroundTransparency = 0.5; Header.Size = UDim2.new(1, 0, 0, 45)
+local Title = Instance.new("TextLabel", Header)
+Title.Size = UDim2.new(0.8, 0, 1, 0); Title.Position = UDim2.new(0, 15, 0, 0); Title.BackgroundTransparency = 1
+Title.Text = "YuuVins <font color='#00FFFF'>Exploids</font> <font color='#FF0078'>V16</font>"; Title.RichText = true
+Title.Font = Enum.Font.Code; Title.TextColor3 = Color3.new(1,1,1); Title.TextSize = 20; Title.TextXAlignment = 0
 
--- Control Buttons
-local function CreateControlBtn(text, xOffset, color, callback)
-    local Btn = Instance.new("TextButton", Header)
-    Btn.Size = UDim2.new(0, 35, 0, 35)
-    Btn.AnchorPoint = Vector2.new(1, 0.5)
-    Btn.Position = UDim2.new(1, xOffset, 0.5, 0)
-    Btn.BackgroundColor3 = Color3.fromRGB(255,255,255)
-    Btn.BackgroundTransparency = 0.95
-    Btn.Text = text
-    Btn.TextColor3 = color
-    Btn.Font = Enum.Font.GothamBold
-    Btn.TextSize = 18
-    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
-    Btn.MouseButton1Click:Connect(callback)
-end
-CreateControlBtn("X", -5, Color3.fromRGB(255, 80, 80), function() ScreenGui:Destroy() end)
-CreateControlBtn("-", -45, Color3.fromRGB(255, 255, 255), ToggleMinimize)
+-- Close & Minimize
+local CloseBtn = Instance.new("TextButton", Header)
+CloseBtn.Size = UDim2.new(0, 35, 0, 35); CloseBtn.Position = UDim2.new(1, -40, 0.5, -17.5)
+CloseBtn.BackgroundColor3 = THEME.Fail; CloseBtn.Text = "X"; CloseBtn.Font = Enum.Font.Code; CloseBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
+
+CloseBtn.MouseButton1Click:Connect(function()
+    TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)}):Play()
+end)
+
+-- Floating Toggle Button (MOBILE FIX)
+local ToggleGui = Instance.new("ScreenGui", UI_Parent)
+ToggleGui.Name = "YuuVinsToggle"
+local ToggleBtn = Instance.new("TextButton", ToggleGui)
+ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+ToggleBtn.Position = UDim2.new(0.1, 0, 0.2, 0)
+ToggleBtn.BackgroundColor3 = THEME.Bg
+ToggleBtn.Text = "Y"
+ToggleBtn.TextColor3 = THEME.Accent
+ToggleBtn.Font = Enum.Font.Code
+ToggleBtn.TextSize = 25
+Instance.new("UIStroke", ToggleBtn).Color = THEME.SecAccent
+Instance.new("UIStroke", ToggleBtn).Thickness = 2
+Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
+MakeDraggable(ToggleBtn)
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    TweenService:Create(MainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Elastic), {Size = UDim2.new(0, 550, 0, 350)}):Play()
+end)
+
+-- Layout Containers
+local Sidebar = Instance.new("Frame", MainFrame)
+Sidebar.BackgroundColor3 = THEME.Sidebar; Sidebar.Position = UDim2.new(0, 0, 0, 45); Sidebar.Size = UDim2.new(0, 150, 1, -45); Sidebar.BorderSizePixel = 0
+local Content = Instance.new("Frame", MainFrame)
+Content.BackgroundColor3 = THEME.Bg; Content.Position = UDim2.new(0, 150, 0, 45); Content.Size = UDim2.new(1, -150, 1, -45); Content.BackgroundTransparency = 1
+local SideList = Instance.new("UIListLayout", Sidebar); SideList.Padding = UDim.new(0, 5); SideList.HorizontalAlignment = 1
+local SidePad = Instance.new("UIPadding", Sidebar); SidePad.PaddingTop = UDim.new(0, 10)
 
 -- [[ UI FUNCTIONS ]]
 local CurrentPage = nil
@@ -218,29 +210,20 @@ function CreateTab(text)
     Btn.Size = UDim2.new(1, -10, 0, 35)
     Btn.BackgroundColor3 = THEME.Bg
     Btn.BackgroundTransparency = 1
-    Btn.Text = "  " .. text
+    Btn.Text = " // " .. text
     Btn.TextColor3 = Color3.fromRGB(150,150,150)
-    Btn.Font = Enum.Font.GothamBold
-    Btn.TextSize = 13
-    Btn.TextXAlignment = Enum.TextXAlignment.Left
+    Btn.Font = Enum.Font.Code
+    Btn.TextSize = 14
+    Btn.TextXAlignment = 0
     
-    local List = Sidebar:FindFirstChild("UIListLayout") or Instance.new("UIListLayout", Sidebar)
-    List.SortOrder = Enum.SortOrder.LayoutOrder
-    List.Padding = UDim.new(0, 5)
-    if not Sidebar:FindFirstChild("UIPadding") then
-        local p = Instance.new("UIPadding", Sidebar)
-        p.PaddingTop = UDim.new(0, 10)
-        p.PaddingLeft = UDim.new(0, 10)
-    end
-
     local Page = Instance.new("ScrollingFrame", Content)
     Page.Size = UDim2.new(1, 0, 1, 0)
     Page.BackgroundTransparency = 1
-    Page.ScrollBarThickness = 3
+    Page.ScrollBarThickness = 2
+    Page.ScrollBarImageColor3 = THEME.Accent
     Page.Visible = false
-    local PL = Instance.new("UIListLayout", Page)
-    PL.Padding = UDim.new(0, 8)
-    PL.SortOrder = Enum.SortOrder.LayoutOrder
+    local PL = Instance.new("UIListLayout", Page); PL.Padding = UDim.new(0, 6)
+    local PP = Instance.new("UIPadding", Page); PP.PaddingTop = UDim.new(0,5); PP.PaddingLeft=UDim.new(0,5)
 
     Btn.MouseButton1Click:Connect(function()
         if CurrentPage then
@@ -251,8 +234,7 @@ function CreateTab(text)
         Btn.TextColor3 = THEME.Accent
         Page.Visible = true
     end)
-    
-    if CurrentPage == nil then
+    if not CurrentPage then
         CurrentPage = {Btn = Btn, Page = Page}
         Btn.TextColor3 = THEME.Accent
         Page.Visible = true
@@ -261,110 +243,54 @@ function CreateTab(text)
 end
 
 function CreateToggle(parent, title, desc, default, callback)
-    local Frame = Instance.new("Frame", parent)
-    Frame.Size = UDim2.new(1, -5, 0, 50)
-    Frame.BackgroundColor3 = THEME.Item
-    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
+    local F = Instance.new("Frame", parent); F.Size = UDim2.new(1, -10, 0, 45); F.BackgroundColor3 = THEME.Item
+    Instance.new("UICorner", F).CornerRadius = UDim.new(0, 6)
+    local T = Instance.new("TextLabel", F); T.Size=UDim2.new(1,-60,0,20); T.Position=UDim2.new(0,10,0,2); T.BackgroundTransparency=1; T.Text=title; T.TextColor3=THEME.Text; T.Font=Enum.Font.Code; T.TextSize=14; T.TextXAlignment=0
+    local D = Instance.new("TextLabel", F); D.Size=UDim2.new(1,-60,0,15); D.Position=UDim2.new(0,10,0,22); D.BackgroundTransparency=1; D.Text=desc; D.TextColor3=Color3.fromRGB(150,150,150); D.Font=Enum.Font.Code; D.TextSize=10; D.TextXAlignment=0
     
-    local LTitle = Instance.new("TextLabel", Frame)
-    LTitle.Size = UDim2.new(1, -60, 0, 25)
-    LTitle.Position = UDim2.new(0, 10, 0, 2)
-    LTitle.BackgroundTransparency = 1
-    LTitle.Text = title
-    LTitle.TextColor3 = THEME.Text
-    LTitle.Font = Enum.Font.GothamBold
-    LTitle.TextSize = 13
-    LTitle.TextXAlignment = Enum.TextXAlignment.Left
+    local B = Instance.new("TextButton", F); B.Size=UDim2.new(0,25,0,25); B.Position=UDim2.new(1,-35,0.5,-12.5); B.BackgroundColor3=default and THEME.Success or THEME.Fail; B.Text=""; Instance.new("UICorner", B).CornerRadius=UDim.new(0,4)
+    local Glow = Instance.new("UIStroke", B); Glow.Color=default and THEME.Success or THEME.Fail; Glow.Thickness=2
     
-    local LDesc = Instance.new("TextLabel", Frame)
-    LDesc.Size = UDim2.new(1, -60, 0, 15)
-    LDesc.Position = UDim2.new(0, 10, 0, 25)
-    LDesc.BackgroundTransparency = 1
-    LDesc.Text = desc
-    LDesc.TextColor3 = Color3.fromRGB(150,150,150)
-    LDesc.Font = Enum.Font.Gotham
-    LDesc.TextSize = 10
-    LDesc.TextXAlignment = Enum.TextXAlignment.Left
-    
-    local TBtn = Instance.new("TextButton", Frame)
-    TBtn.Size = UDim2.new(0, 40, 0, 20)
-    TBtn.Position = UDim2.new(1, -50, 0.5, -10)
-    TBtn.BackgroundColor3 = default and THEME.Accent or Color3.fromRGB(50,50,60)
-    TBtn.Text = ""
-    Instance.new("UICorner", TBtn).CornerRadius = UDim.new(0, 4)
-    
-    TBtn.MouseButton1Click:Connect(function()
+    B.MouseButton1Click:Connect(function()
         default = not default
-        TBtn.BackgroundColor3 = default and THEME.Accent or Color3.fromRGB(50,50,60)
-        pcall(function() StarterGui:SetCore("SendNotification", {Title="System", Text=title.." : "..(default and "ON" or "OFF"), Duration=1}) end)
+        B.BackgroundColor3 = default and THEME.Success or THEME.Fail
+        Glow.Color = default and THEME.Success or THEME.Fail
         callback(default)
     end)
 end
 
 function CreateButton(parent, text, callback)
-    local Btn = Instance.new("TextButton", parent)
-    Btn.Size = UDim2.new(1, -5, 0, 35)
-    Btn.BackgroundColor3 = THEME.Item
-    Btn.Text = text
-    Btn.TextColor3 = THEME.Text
-    Btn.Font = Enum.Font.GothamBold
-    Btn.TextSize = 12
-    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
-    Btn.MouseButton1Click:Connect(callback)
-end
-
-function CreateInfo(parent, label, value)
-    local Frame = Instance.new("Frame", parent)
-    Frame.Size = UDim2.new(1, -5, 0, 30)
-    Frame.BackgroundColor3 = THEME.Item
-    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
-    local L = Instance.new("TextLabel", Frame)
-    L.Size = UDim2.new(0.4, 0, 1, 0)
-    L.Position = UDim2.new(0, 10, 0, 0)
-    L.BackgroundTransparency = 1
-    L.Text = label
-    L.TextColor3 = Color3.fromRGB(180,180,180)
-    L.Font = Enum.Font.Gotham
-    L.TextSize = 12
-    L.TextXAlignment = Enum.TextXAlignment.Left
-    local V = Instance.new("TextLabel", Frame)
-    V.Size = UDim2.new(0.6, -20, 1, 0)
-    V.Position = UDim2.new(0.4, 0, 0, 0)
-    V.BackgroundTransparency = 1
-    V.Text = value
-    V.TextColor3 = THEME.Accent
-    V.Font = Enum.Font.GothamBold
-    V.TextSize = 12
-    V.TextXAlignment = Enum.TextXAlignment.Right
+    local B = Instance.new("TextButton", parent); B.Size=UDim2.new(1, -10, 0, 35); B.BackgroundColor3 = THEME.Item
+    B.Text = "> " .. text; B.TextColor3 = THEME.Text; B.Font = Enum.Font.Code; B.TextSize = 13
+    Instance.new("UICorner", B).CornerRadius = UDim.new(0, 6)
+    local S = Instance.new("UIStroke", B); S.Color=THEME.Accent; S.Thickness=1; S.ApplyStrokeMode="Border"
+    B.MouseButton1Click:Connect(function()
+        S.Thickness = 3; task.wait(0.1); S.Thickness = 1
+        callback()
+    end)
 end
 
 -- =============================================================
--- 3. MENU CONTENT
+-- 3. FEATURES & LOGIC
 -- =============================================================
-local TabMain = CreateTab("Fish-It Main")
-CreateToggle(TabMain, "Auto Fish V3", "Tap -> Charge -> Turbo Reel", false, function(s) CONFIG.FT_AutoFish = s end)
+
+-- TABS
+local TabMain = CreateTab("Main")
+CreateToggle(TabMain, "Auto Fish V3", "Hold 2s -> Tap Tap Reel", false, function(s) CONFIG.FT_AutoFish = s end)
 CreateToggle(TabMain, "Legit 10x Speed", "Animation Booster", false, function(s) CONFIG.FT_Legit10x = s end)
 CreateToggle(TabMain, "200x Luck", "Spam RNG Event", false, function(s) CONFIG.FT_Luck200x = s end)
 
 local TabVis = CreateTab("Visuals")
-CreateToggle(TabVis, "Infinite Jump", "Lompat di udara", false, function(s) CONFIG.IsInfJump = s end)
+CreateToggle(TabVis, "Infinite Jump", "Spasi di udara", false, function(s) CONFIG.IsInfJump = s end)
 CreateToggle(TabVis, "Always Day", "Terang Terus", false, function(s) CONFIG.IsFullBright = s; if not s then Lighting.ClockTime = 12 end end)
 
 local TabSys = CreateTab("System")
 CreateToggle(TabSys, "Anti-AFK", "No Disconnect 24H", true, function(s) CONFIG.IsAntiAFK = s end)
+CreateToggle(TabSys, "Anti-Admin", "Auto Kick if Staff", true, function(s) CONFIG.IsBypass = s end)
 
 local TabInfo = CreateTab("Info")
-local execName = "Unknown" if identifyexecutor then execName = identifyexecutor() end
-local gameName = "Fish It Modded"
-CreateInfo(TabInfo, "Best Xploid YuuVins")
-CreateInfo(TabInfo, "Username:", LocalPlayer.DisplayName)
-CreateInfo(TabInfo, "Game:", gameName)
-CreateInfo(TabInfo, "Status:", "SPECIAL EDITION")
-CreateInfo(TabInfo, "Executor:", execName)
-
--- =============================================================
--- 4. LOGIC ENGINE (FISH IT PRO MAX)
--- =============================================================
+CreateButton(TabInfo, "Owner: ZAYANGGGGG", function() end)
+CreateButton(TabInfo, "Game: Fish It Modded", function() end)
 
 -- [[ FISH IT: AUTO FISH LOGIC (TAP > CHARGE > REEL) ]]
 task.spawn(function()
@@ -374,35 +300,29 @@ task.spawn(function()
             if Tool then
                 if not Tool:FindFirstChild("bobber") then
                     -- FASE 1: CAST (LEMPAR)
-                    -- Klik 1x untuk mulai charge
                     VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
                     task.wait(0.1)
                     VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
-                    
-                    task.wait(0.8) -- Tunggu bar charge naik ke zona perfect
-                    
-                    -- Klik lagi untuk lempar perfect
+                    task.wait(0.8) -- Charge Perfect
                     VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
                     task.wait(0.1)
                     VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
-                    
-                    task.wait(2.5) -- Tunggu umpan masuk air
+                    task.wait(2.5) -- Wait Bait
                 else
-                    -- FASE 2: REEL (TARIK)
-                    -- Spam klik super cepat (Turbo Reel) saat sudah hook
-                    for i = 1, 10 do -- Klik 10x cepat
+                    -- FASE 2: REEL (TARIK CEPAT)
+                    for i = 1, 10 do
                         VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
                         task.wait(0.01)
                         VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
                     end
-                    task.wait(0.1) -- Jeda dikit
+                    task.wait(0.1)
                 end
             end
         end
     end
 end)
 
--- [[ FISH IT: 10x SPEED ]]
+-- [[ 10x SPEED ]]
 task.spawn(function()
     while true do task.wait(0.5)
         if CONFIG.FT_Legit10x then pcall(function() Workspace.Gravity = 50 end) 
@@ -410,7 +330,7 @@ task.spawn(function()
     end
 end)
 
--- [[ FISH IT: 200X LUCK ]]
+-- [[ 200X LUCK ]]
 task.spawn(function()
     while true do task.wait(2)
         if CONFIG.FT_Luck200x then
@@ -421,7 +341,7 @@ task.spawn(function()
     end
 end)
 
--- [[ SYSTEM: INFINITE JUMP ]]
+-- [[ INFINITE JUMP ]]
 UserInputService.JumpRequest:Connect(function()
     if CONFIG.IsInfJump and LocalPlayer.Character then
         local Hum = LocalPlayer.Character:FindFirstChild("Humanoid")
@@ -429,22 +349,20 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
--- [[ SYSTEM: FULLBRIGHT ]]
+-- [[ ANTI AFK ]]
+LocalPlayer.Idled:Connect(function()
+    if CONFIG.IsAntiAFK then VirtualUser:CaptureController(); VirtualUser:ClickButton2(Vector2.new()) end
+end)
+
+-- [[ FULLBRIGHT ]]
 task.spawn(function()
     while true do task.wait(1)
         if CONFIG.IsFullBright then Lighting.ClockTime = 12; Lighting.Brightness = 2; Lighting.GlobalShadows = false end
     end
 end)
 
--- [[ SYSTEM: ANTI AFK ]]
-LocalPlayer.Idled:Connect(function()
-    if CONFIG.IsAntiAFK then VirtualUser:CaptureController(); VirtualUser:ClickButton2(Vector2.new()) end
-end)
-
--- [[ BOOT SEQUENCE ]]
+-- Final Load
 task.spawn(function()
-    task.wait(1.5) -- Tunggu loading bar selesai
-    ScreenGui.Enabled = true
-    MainFrame.Size = UDim2.new(0, 0, 0, 0)
-    TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Elastic), {Size = UDim2.new(0, 600, 0, 400)}):Play()
+    task.wait(2.2) -- Tunggu loading bar
+    TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Elastic), {Size = UDim2.new(0, 550, 0, 350)}):Play()
 end)
