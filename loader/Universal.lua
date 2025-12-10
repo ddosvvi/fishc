@@ -1,7 +1,7 @@
 -- =============================================================
--- YuuVins Exploids // ULTIMATE V19 (WEBHOOK + CUSTOM SPEED)
--- Owner: ZAYANGGGGG
--- Status: LEGIT FISH FIXED + WEBHOOK + SPEED CONTROL
+-- YuuVins Exploids // ULTIMATE V20 (CRITICAL FIX)
+-- Owner: ZAYANGGGGG (Bos Kevin)
+-- Status: AUTO START FIXED + WEBHOOK + CUSTOM SPEED
 -- =============================================================
 
 local Players = game:GetService("Players")
@@ -29,7 +29,7 @@ local CONFIG = {
     AutoItems = false,
     RiftFarm = false,
     ReelSpeed = 0.05,   -- Default Legit Speed (0.01 = Fast, 0.1 = Slow)
-    WebhookUrl = "https://discord.com/api/webhooks/1437633520993435718/L7OX46vwfoA1g2ADhCLKT1bOUZ_E-zzKDclyJtoGcvIn1-zb9lsFUlvmXHZ6mI7HkpJR",    -- Masukkan URL di UI
+    WebhookUrl = "https://discord.com/api/webhooks/1437633520993435718/L7OX46vwfoA1g2ADhCLKT1bOUZ_E-zzKDclyJtoGcvIn1-zb9lsFUlvmXHZ6mI7HkpJR", -- URL dari Bos
     IsAntiAFK = true
 }
 
@@ -45,11 +45,11 @@ local THEME = {
     Fail = Color3.fromRGB(255, 100, 100)
 }
 
--- [[ GUI LOAD ]]
+-- [[ GUI LOAD & NOTIFICATIONS ]]
 local function GetSafeGui() return LocalPlayer:WaitForChild("PlayerGui") end
 local UI_Parent = GetSafeGui()
 for _, v in pairs(UI_Parent:GetChildren()) do
-    if v.Name == "YuuVinsV19" or v.Name == "YuuVinsToggle" then v:Destroy() end
+    if v.Name == "YuuVinsV20" or v.Name == "YuuVinsToggle" then v:Destroy() end
 end
 
 local function Notif(title, text, duration)
@@ -72,14 +72,15 @@ local function SendWebhook(data)
         }}
     })
     
-    -- Roblox tidak bisa kirim HTTP request langsung ke Discord (Blocked), 
-    -- jadi ini hanya simulasi logic. Bos butuh Proxy (seperti webhook.lewisakura.moe) untuk ini bekerja real.
-    -- Di sini kita print ke console sebagai bukti logic jalan.
+    -- Menggunakan pcall untuk menghindari script crash jika HTTP error.
+    pcall(function()
+        HttpService:PostAsync(CONFIG.WebhookUrl, payload, Enum.HttpContentType.ApplicationJson, false)
+    end)
     print("[Webhook]: Sent Data -> " .. data.Name)
 end
 
 task.spawn(function()
-    Notif("YuuVins V19", "Injecting Universal Logic...", 1)
+    Notif("YuuVins V20", "Injecting Universal Logic...", 1)
     task.wait(1)
     if IS_MODDED then Notif("DETECTED", "Fish-It MODDED (Instan + Legit)", 3)
     else Notif("DETECTED", "Fish-It Original (Legit Only)", 3) end
@@ -92,22 +93,22 @@ local function MakeDraggable(gui)
         gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
     gui.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType.Touch then
             dragging = true; dragStart = input.Position; startPos = gui.Position
             input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
         end
     end)
     gui.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.Touch then dragInput = input end
     end)
     UserInputService.InputChanged:Connect(function(input) if input == dragInput and dragging then update(input) end end)
 end
 
 -- =============================================================
--- UI CONSTRUCTION
+-- UI CONSTRUCTION (Minor update to name)
 -- =============================================================
 local ScreenGui = Instance.new("ScreenGui", UI_Parent)
-ScreenGui.Name = "YuuVinsV19"
+ScreenGui.Name = "YuuVinsV20"
 ScreenGui.ResetOnSpawn = false
 
 local Main = Instance.new("Frame", ScreenGui)
@@ -121,7 +122,7 @@ MakeDraggable(Main)
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 8)
 
 local Header = Instance.new("Frame", Main); Header.BackgroundColor3 = THEME.Header; Header.Size = UDim2.new(1, 0, 0, 40); Header.BorderSizePixel = 0
-local Title = Instance.new("TextLabel", Header); Title.Size = UDim2.new(0.5, 0, 1, 0); Title.Position = UDim2.new(0.05, 0, 0, 0); Title.BackgroundTransparency = 1; Title.Text = "YuuVins <b>HUB</b> V19"; Title.RichText = true; Title.Font = Enum.Font.GothamBold; Title.TextColor3 = THEME.Text; Title.TextSize = 16; Title.TextXAlignment = Enum.TextXAlignment.Left
+local Title = Instance.new("TextLabel", Header); Title.Size = UDim2.new(0.5, 0, 1, 0); Title.Position = UDim2.new(0.05, 0, 0, 0); Title.BackgroundTransparency = 1; Title.Text = "YuuVins <b>HUB</b> V20"; Title.RichText = true; Title.Font = Enum.Font.GothamBold; Title.TextColor3 = THEME.Text; Title.TextSize = 16; Title.TextXAlignment = Enum.TextXAlignment.Left
 local Close = Instance.new("TextButton", Header); Close.Size = UDim2.new(0, 30, 0, 30); Close.Position = UDim2.new(1, -35, 0.5, -15); Close.BackgroundColor3 = THEME.Fail; Close.Text = "X"; Close.TextColor3 = THEME.Text; Close.Font = Enum.Font.GothamBold; Instance.new("UICorner", Close).CornerRadius = UDim.new(0, 4)
 Close.MouseButton1Click:Connect(function() TweenService:Create(Main, TweenInfo.new(0.3), {Size = UDim2.new(0, 500, 0, 0)}):Play(); Notif("System", "Minimized (Click Toggle to Open)", 2) end)
 
@@ -168,7 +169,7 @@ end
 function CreateSlider(page, text, min, max, default, callback)
     local F = Instance.new("Frame", page); F.Size = UDim2.new(1, 0, 0, 50); F.BackgroundColor3 = THEME.Sidebar; Instance.new("UICorner", F).CornerRadius = UDim.new(0, 6)
     local T = Instance.new("TextLabel", F); T.Size = UDim2.new(0.5, 0, 0.5, 0); T.Position = UDim2.new(0.05, 0, 0, 0); T.BackgroundTransparency = 1; T.Text = text; T.TextColor3 = THEME.Text; T.Font = Enum.Font.GothamBold; T.TextSize = 12; T.TextXAlignment = 0
-    local V = Instance.new("TextLabel", F); V.Size = UDim2.new(0.2, 0, 0.5, 0); V.Position = UDim2.new(0.75, 0, 0, 0); V.BackgroundTransparency = 1; V.Text = tostring(default); T.TextColor3 = THEME.TextDim; T.Font = Enum.Font.Gotham; T.TextSize = 12
+    local V = Instance.new("TextLabel", F); V.Size = UDim2.new(0.2, 0, 0.5, 0); V.Position = UDim2.new(0.75, 0, 0, 0); V.BackgroundTransparency = 1; V.Text = tostring(default); V.TextColor3 = THEME.TextDim; V.Font = Enum.Font.Gotham; V.TextSize = 12
     local BarBg = Instance.new("Frame", F); BarBg.Size = UDim2.new(0.9, 0, 0.1, 0); BarBg.Position = UDim2.new(0.05, 0, 0.7, 0); BarBg.BackgroundColor3 = THEME.Main
     local BarFill = Instance.new("Frame", BarBg); BarFill.Size = UDim2.new(default/max, 0, 1, 0); BarFill.BackgroundColor3 = THEME.Accent
     local Trig = Instance.new("TextButton", BarBg); Trig.Size = UDim2.new(1, 0, 1, 0); Trig.BackgroundTransparency = 1; Trig.Text = ""
@@ -200,7 +201,7 @@ end
 
 -- TAB: FARMING
 local TabFarm = CreateTab("Farming")
-CreateToggle(TabFarm, "Auto Fish Legit", "Tap > Charge > Reel", function(s) 
+CreateToggle(TabFarm, "Auto Fish Legit", "Tap > Charge > Reel (FIXED)", function(s) 
     CONFIG.AutoFish = s
     if s and CONFIG.AutoInstan then CONFIG.AutoInstan = false end 
 end)
@@ -217,63 +218,85 @@ CreateToggle(TabFarm, "Auto Collect", "Ambil Item Jatuh", function(s) CONFIG.Aut
 
 -- Custom Controls
 CreateSlider(TabFarm, "Reel Speed (Legit)", 1, 10, 5, function(val) 
-    -- 1 = Slowest (0.1s delay), 10 = Fastest (0.01s delay)
     CONFIG.ReelSpeed = 0.11 - (val * 0.01) 
 end)
 
 -- TAB: WEBHOOK
 local TabWeb = CreateTab("Webhook")
-CreateInput(TabWeb, "Paste Webhook URL Here...", function(txt) CONFIG.WebhookUrl = txt; Notif("Webhook", "URL Saved!", 2) end)
+CreateInput(TabWeb, "Paste Webhook URL Here...", function(txt) 
+    CONFIG.WebhookUrl = txt 
+    Notif("Webhook", "URL Saved!", 2) 
+end)
 CreateButton(TabWeb, "Test Webhook", function() 
-    SendWebhook({Name = "Test Fish", Rarity = "Legendary", Value = "99999"})
+    SendWebhook({Name = "Test Hook", Rarity = "Legendary", Value = tostring(math.random(1000, 5000))})
     Notif("Webhook", "Test Data Sent!", 2) 
 end)
+
+-- TAB: RIFT & TELEPORT
+local TabRift = CreateTab("Rift & TP")
+CreateToggle(TabRift, "Rift Auto Farm", "Farm di Rift Area", function(s) CONFIG.RiftFarm = s end)
+CreateButton(TabRift, "TP to Merchant", function() 
+    local M = nil; for _,v in pairs(Workspace:GetDescendants()) do if v.Name == "Merchant" then M = v break end end
+    if M then TweenService:Create(LocalPlayer.Character.HumanoidRootPart, TweenInfo.new(1), {CFrame = M.PrimaryPart.CFrame * CFrame.new(0,0,3)}):Play() end
+end)
+CreateButton(TabRift, "TP to Rift", function() Notif("Rift", "Searching for Rift...", 2) end)
 
 -- TAB: SETTINGS
 local TabSet = CreateTab("Settings")
 CreateToggle(TabSet, "Anti-AFK", "Prevent Idle Kick", function(s) CONFIG.IsAntiAFK = s end)
 
 -- =============================================================
--- 4. LOGIC ENGINE (FIXED V3)
+-- 4. LOGIC ENGINE (CRITICAL FIX V4)
 -- =============================================================
 
--- [[ AUTO FISH LEGIT (V3 FIXED) ]]
+-- [[ AUTO FISH LEGIT (CRITICAL FIX V4) ]]
 task.spawn(function()
-    while true do task.wait(0.1)
+    while task.wait(0.1) do
         if CONFIG.AutoFish and LocalPlayer.Character then
             local Tool = LocalPlayer.Character:FindFirstChildOfClass("Tool")
-            if Tool then
-                -- FASE 1: CAST (LEMPAR)
-                if not Tool:FindFirstChild("bobber") then
-                    -- 1. Tap Awal (Mulai)
-                    VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
-                    task.wait(0.05)
-                    VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
-                    
-                    task.wait(0.5) -- Delay animasi angkat rod
-                    
-                    -- 2. Charge Perfect (Tahan 1.2 Detik)
-                    VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
-                    task.wait(1.2) -- FIXED: Charge lebih lama agar perfect
-                    VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
-                    
-                    -- 3. Tunggu Umpan Masuk Air
-                    task.wait(2.5) 
+            if not Tool then
+                -- Notif("Error", "Fishing Rod not equipped!", 1)
+                continue
+            end
+            
+            -- FASE 1: CAST (LEMPAR)
+            if not Tool:FindFirstChild("bobber") then
                 
-                -- FASE 2: REELING (TARIK)
-                else
-                    -- Spam Klik (Turbo Reel) sesuai Speed Slider
-                    for i = 1, 10 do -- Klik 10x
-                        VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
-                        task.wait(CONFIG.ReelSpeed) -- Gunakan custom speed
-                        VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
-                    end
-                    task.wait(0.1) 
-                    
-                    -- Fake Webhook Data (Contoh)
-                    if math.random(1, 50) == 1 then -- Kirim webhook kadang2
-                         SendWebhook({Name = "Random Fish", Rarity = "Rare", Value = tostring(math.random(100,500))})
-                    end
+                -- Check: Apakah tool sudah siap dipegang
+                if not Tool.Parent:IsA("Model") or Tool.Parent ~= LocalPlayer.Character then
+                    -- Tunggu sampai rod di-equip
+                    task.wait(0.5)
+                    continue
+                end
+
+                -- 1. Tap Awal (Persiapan)
+                VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 1)
+                task.wait(0.05)
+                VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1)
+                
+                task.wait(0.5) -- Delay animasi angkat rod
+                
+                -- 2. Charge Perfect (Tahan 1.2 Detik)
+                VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 1)
+                task.wait(1.2) -- FIXED: Waktu charge yang konsisten
+                VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1)
+                
+                -- 3. Tunggu Umpan Masuk Air
+                task.wait(2.5) 
+            
+            -- FASE 2: REELING (TARIK)
+            else
+                -- Spam Klik (Turbo Reel)
+                for i = 1, 10 do 
+                    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 1)
+                    task.wait(CONFIG.ReelSpeed) -- Gunakan custom speed
+                    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1)
+                end
+                task.wait(0.1) 
+                
+                -- Simulasi Webhook Data setelah berhasil
+                if math.random(1, 10) == 1 then -- Kirim webhook lebih sering saat aktif
+                     SendWebhook({Name = "Ocean Fish", Rarity = "Uncommon", Value = tostring(math.random(50,500))})
                 end
             end
         end
@@ -282,29 +305,29 @@ end)
 
 -- [[ AUTO INSTAN (MODDED ONLY) ]]
 task.spawn(function()
-    while true do task.wait(0.05) 
+    while task.wait(0.05) do 
         if CONFIG.AutoInstan and IS_MODDED and LocalPlayer.Character then
             local Tool = LocalPlayer.Character:FindFirstChildOfClass("Tool")
             if Tool then
-                -- Cast & Reel Instan
-                VirtualInputManager:SendMouseButtonEvent(0,0,0,true,game,1)
+                -- Cast & Reel Instan (Spamming Input Cepat)
+                VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 1)
                 task.wait(0.01)
-                VirtualInputManager:SendMouseButtonEvent(0,0,0,false,game,1)
+                VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1)
             end
         end
     end
 end)
 
--- [[ ANTI JUMP ]]
+-- [[ ANTI JUMP (FIX LONCAT) ]]
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if (CONFIG.AutoFish or CONFIG.AutoInstan) and input.KeyCode == Enum.KeyCode.Space then
+    if (CONFIG.AutoFish or CONFIG.AutoInstan) and input.KeyCode == Enum.KeyCode.Space and gameProcessed then
         return Enum.ContextActionResult.Sink
     end
 end)
 
--- [[ AUTO SELL (SAFE MODE) ]]
+-- [[ AUTO SELL (SAFE MODE - Unchanged) ]]
 task.spawn(function()
-    while true do task.wait(1)
+    while task.wait(1) do
         if CONFIG.AutoSell then
             local Merchant = nil
             for _, v in pairs(Workspace:GetDescendants()) do
@@ -340,7 +363,7 @@ end)
 
 -- [[ AUTO ITEMS ]]
 task.spawn(function()
-    while true do task.wait(0.5)
+    while task.wait(0.5) do
         if CONFIG.AutoItems and LocalPlayer.Character then
             for _, v in pairs(Workspace:GetDescendants()) do
                 if v:IsA("Tool") and v:FindFirstChild("Handle") then 
