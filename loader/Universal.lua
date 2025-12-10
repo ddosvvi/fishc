@@ -1,10 +1,3 @@
--- =============================================================
--- YuuVins Exploids // ULTIMATE V18 (CLEAN & LEGIT)
--- Owner: ZAYANGGGGG
--- Game: Universal (Fisch & Fish-It Modded)
--- Status: SUPER LEGIT MECHANICS + SAFE SELL
--- =============================================================
-
 -- [[ SERVICES ]]
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -21,7 +14,7 @@ local Workspace = game:GetService("Workspace")
 
 -- [[ GAME DETECTION ]]
 local PlaceID = game.PlaceId
-local IsModded = (PlaceID == 122961055235507) -- Fish-It Modded ID
+local IsModded = (PlaceID == 132525330857957) -- Fish-It Modded ID
 local ReelSpeed = IsModded and 0.01 or 0.05 -- 10x Speed untuk Modded, 5x untuk Original (Safety)
 
 -- [[ CONFIGURATION ]]
